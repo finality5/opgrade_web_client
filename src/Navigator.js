@@ -23,12 +23,36 @@ const categories = [
   {
     id: 'Develop',
     children: [
-      { id: 'Authentication', icon: <PeopleIcon />, active: true },
-      { id: 'Database', icon: <DnsRoundedIcon /> },
-      { id: 'Storage', icon: <PermMediaOutlinedIcon /> },
-      { id: 'Hosting', icon: <PublicIcon /> },
+      { id: 'Class', icon: <PeopleIcon />, active: true },
+      { id: 'Quiz', icon: <DnsRoundedIcon /> },
+      { id: 'Student', icon: <PermMediaOutlinedIcon /> },
+      { id: 'Statistic', icon: <PublicIcon /> },
       { id: 'Functions', icon: <SettingsEthernetIcon /> },
       { id: 'ML Kit', icon: <SettingsInputComponentIcon /> },
+    ],
+  },
+  {
+    id: 'Quality',
+    children: [
+      { id: 'Analytics', icon: <SettingsIcon /> },
+      { id: 'Performance', icon: <TimerIcon /> },
+      { id: 'Test Lab', icon: <PhonelinkSetupIcon /> },
+    ],
+  },
+  {
+    id: 'Quality',
+    children: [
+      { id: 'Analytics', icon: <SettingsIcon /> },
+      { id: 'Performance', icon: <TimerIcon /> },
+      { id: 'Test Lab', icon: <PhonelinkSetupIcon /> },
+    ],
+  },
+  {
+    id: 'Quality',
+    children: [
+      { id: 'Analytics', icon: <SettingsIcon /> },
+      { id: 'Performance', icon: <TimerIcon /> },
+      { id: 'Test Lab', icon: <PhonelinkSetupIcon /> },
     ],
   },
   {

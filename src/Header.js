@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
 import Avatar from "@material-ui/core/Avatar";
@@ -17,8 +17,15 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import firebase from "./FirebaseAPI";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 
 const lightColor = "rgba(255, 255, 255, 0.7)";
+
+const options = ["Log out"];
+
+const ITEM_HEIGHT = 20;
 
 const styles = (theme) => ({
   secondaryBar: {
@@ -44,7 +51,17 @@ const styles = (theme) => ({
 
 function Header(props) {
   const { classes, onDrawerToggle } = props;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
 
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+    console.log("#", event);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   return (
     <React.Fragment>
       <AppBar color="primary" position="sticky" elevation={0}>
@@ -63,22 +80,40 @@ function Header(props) {
               </Grid>
             </Hidden>
             <Grid item xs />
+
             <Grid item>
-              <Link className={classes.link} href="#" variant="body2">
-                Go to docs
-              </Link>
-            </Grid>
-            <Grid item>
-              <Tooltip title="Alerts • No alerts">
-                <IconButton color="inherit">
-                  <NotificationsIcon />
-                </IconButton>
-              </Tooltip>
-            </Grid>
-            <Grid item>
-              <IconButton color="inherit" className={classes.iconButtonAvatar}>
-                <Avatar src="/static/images/avatar/1.jpg" alt="My Avatar" />
+              <IconButton
+                aria-label="more"
+                aria-controls="long-menu"
+                aria-haspopup="true"
+                onClick={handleClick}
+              >
+                <MoreHorizIcon />
               </IconButton>
+              <Menu
+                id="long-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={open}
+                onClose={handleClose}
+                PaperProps={{
+                  style: {
+                    maxHeight: ITEM_HEIGHT * 4.5,
+                    width: "20ch",
+                  },
+                }}
+              >
+                {options.map((option) => (
+                  <MenuItem
+                    key={option}
+                    onClick={() => {
+                      firebase.auth().signOut();
+                    }}
+                  >
+                    {option}
+                  </MenuItem>
+                ))}
+              </Menu>
             </Grid>
           </Grid>
         </Toolbar>
@@ -96,26 +131,6 @@ function Header(props) {
               <Typography color="inherit" variant="h5" component="h1">
                 Authentication
               </Typography>
-            </Grid>
-            <Grid item>
-              <Button
-                className={classes.button}
-                variant="outlined"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  firebase.auth().signOut();
-                }}
-              >
-                Web setup
-              </Button>
-            </Grid>
-            <Grid item>
-              <Tooltip title="Help">
-                <IconButton color="inherit">
-                  <HelpIcon />
-                </IconButton>
-              </Tooltip>
             </Grid>
           </Grid>
         </Toolbar>
