@@ -1,14 +1,29 @@
-import React from "react";
+import React, { useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import Fade from "@material-ui/core/Fade";
+
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import AddIcon from "@material-ui/icons/Add";
 import clsx from "clsx";
+import Button from "@material-ui/core/Button";
+import TextField from "@material-ui/core/TextField";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import Axios from "axios";
+import { AppContext } from "./../context/context";
+import axios from "axios";
+import Snackbar from "@material-ui/core/Snackbar";
+import MuiAlert from "@material-ui/lab/Alert";
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 const useStyles = makeStyles((theme) => ({
   modal: {
     display: "flex",
@@ -16,10 +31,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
   },
   paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
+    width: "100%",
   },
   item: {
     paddingTop: 1,
@@ -47,8 +59,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TransitionsModal() {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-
+  const { user, host } = useContext(AppContext);
+  const [open, setOpen] = useState(false);
+  const [Err, setErr] = useState({ error: "" });
+  const [openModal, setOpenModal] = useState(false);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -56,6 +70,44 @@ export default function TransitionsModal() {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const modalClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenModal(false);
+  };
+
+  const addClass = (event) => {
+    event.preventDefault();
+    const { class_name, class_id } = event.target.elements;
+    if (!class_name.value) {
+      alert("Class Name is required");
+      return setErr({ error: "Class Name is required" });
+    }
+    if (!class_id.value) {
+      alert("Class ID is required");
+      return setErr({ error: "Class ID is required" });
+    }
+    console.log(class_name.value, class_id.value);
+    const url = `http://${host}:5000/addclass`;
+    const payload = {
+      uid: user.uid,
+      class_name: class_name.value,
+      class_id: class_id.value,
+    };
+    axios
+      .post(url, payload)
+      .then((res) => {
+        setOpen(false);
+        setOpenModal(true);
+        console.log(res);
+      })
+      .catch((err) => setErr({ error: err.message }));
+  };
+
+  if (Err.error) console.log(">>>>", Err.error);
 
   return (
     <div>
@@ -74,27 +126,48 @@ export default function TransitionsModal() {
           Add Class
         </ListItemText>
       </ListItem>
-      <Modal
-        aria-labelledby="transition-modal-title"
-        aria-describedby="transition-modal-description"
-        className={classes.modal}
+      <Dialog
         open={open}
         onClose={handleClose}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
+        aria-labelledby="form-dialog-title"
       >
-        <Fade in={open}>
-          <div className={classes.paper}>
-            <h2 id="transition-modal-title">Transition modal</h2>
-            <p id="transition-modal-description">
-              react-transition-group animates me.
-            </p>
-          </div>
-        </Fade>
-      </Modal>
+        <DialogTitle id="form-dialog-title">Add Class</DialogTitle>
+        <form noValidate onSubmit={addClass}>
+          <DialogContent className={classes.paper}>
+            <TextField
+              required
+              autoFocus
+              margin="dense"
+              id="class_name"
+              label="Class Name"
+              type="text"
+              fullWidth
+            />
+            <TextField
+              required
+              autoFocus
+              margin="dense"
+              id="class_id"
+              label="Class Id"
+              type="text"
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Cancel
+            </Button>
+            <Button color="primary" type="submit">
+              Add
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+      <Snackbar open={openModal} autoHideDuration={2000} onClose={modalClose}>
+        <Alert onClose={modalClose} severity="success">
+          Successfully update class
+        </Alert>
+      </Snackbar>
     </div>
   );
 }
