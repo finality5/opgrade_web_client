@@ -113,6 +113,9 @@ export default function SignUp({ history }) {
   if (currentUser && !sign.signed) {
     return <Redirect to="/main" />;
   }
+  if (Firebaseload.loading) {
+    return <div className="area"></div>;
+  }
   return (
     <div className="area">
       <Container component="main" maxWidth="xs" className="box">
