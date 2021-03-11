@@ -156,12 +156,12 @@ const styles = {
 function Paperbase(props) {
   const { classes } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const { user, setUser, setHost } = useContext(AppContext);
+  const { user, setUser, setHost,ticker } = useContext(AppContext);
   const [error, setError] = useState();
   const [isFetch, setFetch] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+   
       setFetch(true);
       const response2 = initialUserFetch2();
       if (response2.error) {
@@ -172,7 +172,8 @@ function Paperbase(props) {
           .then((res) => {
             setFetch(false);
             setUser(res);
-            console.log('@@@',res)
+            console.log('@@@Ticker')
+            console.log('@',res)
           })
           .catch((err) => {
             setFetch(false);
@@ -186,13 +187,12 @@ function Paperbase(props) {
       } else {
         host
           .then((result) => {
-            console.log('###',result)
             setHost(result);
           })
           .catch((err) => setError(err));
       }
-    }
-  }, []);
+    
+  }, [ticker]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

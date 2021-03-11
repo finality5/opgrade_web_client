@@ -14,11 +14,11 @@ import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
 import PermMediaOutlinedIcon from "@material-ui/icons/PhotoSizeSelectActual";
 import PublicIcon from "@material-ui/icons/Public";
 import ClassIcon from "@material-ui/icons/Class";
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from "@material-ui/icons/Add";
 import EqualizerIcon from "@material-ui/icons/Equalizer";
 import SchoolIcon from "@material-ui/icons/School";
 import { AppContext } from "./context/context";
-import AddClassModal from './Component/AddClassModal'
+import AddClassModal from "./Component/AddClassModal";
 const styles = (theme) => ({
   categoryHeader: {
     paddingTop: theme.spacing(2),
@@ -40,7 +40,7 @@ const styles = (theme) => ({
     boxShadow: "0 -1px 0 #404854 inset",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
-    cursor: 'pointer'
+    cursor: "pointer",
   },
   firebase: {
     fontSize: 24,
@@ -66,7 +66,9 @@ const styles = (theme) => ({
 
 function Navigator(props) {
   const { classes, ...other } = props;
-  const { user,setCurrent ,setMode} = useContext(AppContext);
+  const { user, setCurrent, setMode, ticker, setTicker } = useContext(
+    AppContext
+  );
   const [categories, setCate] = useState([]);
   const [trigger, setTrigger] = useState({ class_id: "", mode: "" });
   useEffect(() => {
@@ -82,7 +84,8 @@ function Navigator(props) {
               icon: <SchoolIcon />,
               mode: "class",
               active:
-                trigger.class_id === obj.class_key && trigger.class_mode === "class"
+                trigger.class_id === obj.class_key &&
+                trigger.class_mode === "class"
                   ? true
                   : false,
             },
@@ -91,7 +94,8 @@ function Navigator(props) {
               icon: <ClassIcon />,
               mode: "quiz",
               active:
-                trigger.class_id === obj.class_key && trigger.class_mode === "quiz"
+                trigger.class_id === obj.class_key &&
+                trigger.class_mode === "quiz"
                   ? true
                   : false,
             },
@@ -100,7 +104,8 @@ function Navigator(props) {
               icon: <PeopleIcon />,
               mode: "student",
               active:
-                trigger.class_id === obj.class_key && trigger.class_mode === "student"
+                trigger.class_id === obj.class_key &&
+                trigger.class_mode === "student"
                   ? true
                   : false,
             },
@@ -109,7 +114,8 @@ function Navigator(props) {
               icon: <EqualizerIcon />,
               mode: "stat",
               active:
-                trigger.class_id === obj.class_key && trigger.class_mode === "stat"
+                trigger.class_id === obj.class_key &&
+                trigger.class_mode === "stat"
                   ? true
                   : false,
             },
@@ -121,11 +127,12 @@ function Navigator(props) {
   }, [user, trigger]);
 
   useEffect(() => {
-    if (user && trigger.class_id!=='' && trigger.mode!=='') {
-      setCurrent(user.class_data.filter(obj=>obj.class_key===trigger.class_id)[0])
+    if (user && trigger.class_id !== "" && trigger.mode !== "") {
+      setCurrent(
+        user.class_data.filter((obj) => obj.class_key === trigger.class_id)[0]
+      );
     }
-      
-  },[trigger])
+  }, [trigger]);
 
   //console.log('@',trigger)
   //console.log("#", categories);
@@ -134,10 +141,14 @@ function Navigator(props) {
       <List disablePadding>
         <ListItem
           className={clsx(classes.firebase, classes.item, classes.itemCategory)}
+          onClick={() => setTicker(!ticker)}
         >
           Opgrade Office
         </ListItem>
-        <ListItem className={clsx(classes.item, classes.itemCategory)}>
+        <ListItem
+          className={clsx(classes.item, classes.itemCategory)}
+          onClick={() => setTicker(!ticker)}
+        >
           <ListItemIcon className={classes.itemIcon}>
             <HomeIcon />
           </ListItemIcon>
@@ -166,7 +177,7 @@ function Navigator(props) {
                 button
                 className={clsx(classes.item, active && classes.itemActiveItem)}
                 onClick={() => {
-                  setMode(mode)
+                  setMode(mode);
                   setTrigger({ class_id: id, class_mode: mode });
                 }}
               >

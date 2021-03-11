@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function TransitionsModal() {
   const classes = useStyles();
-  const { user, host } = useContext(AppContext);
+  const { user, host,ticker,setTicker } = useContext(AppContext);
   const [open, setOpen] = useState(false);
   const [Err, setErr] = useState({ error: "" });
   const [openModal, setOpenModal] = useState(false);
@@ -102,7 +102,8 @@ export default function TransitionsModal() {
       .then((res) => {
         setOpen(false);
         setOpenModal(true);
-        console.log(res);
+        setTicker(!ticker)
+        //console.log(res);
       })
       .catch((err) => setErr({ error: err.message }));
   };

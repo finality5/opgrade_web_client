@@ -59,7 +59,7 @@ function Header(props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  console.log(current,mode)
+  //console.log(current,mode)
   return (
     <React.Fragment>
       <AppBar color="primary" position="sticky" elevation={0}>

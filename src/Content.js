@@ -13,6 +13,10 @@ import { withStyles } from "@material-ui/core/styles";
 import SearchIcon from "@material-ui/icons/Search";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import { AppContext } from "./context/context";
+import StudentIndex from "./Component/StudentIndex";
+import ClassIndex from "./Component/ClassIndex";
+import QuizIndex from "./Component/QuizIndex";
+import StatIndex from "./Component/StatIndex";
 const styles = (theme) => ({
   paper: {
     maxWidth: 936,
@@ -34,7 +38,6 @@ const styles = (theme) => ({
   addUser: {
     marginRight: theme.spacing(1),
     backgroundColor: theme.palette.primary.main,
-   
   },
   contentWrapper: {
     margin: "40px 16px",
@@ -42,6 +45,21 @@ const styles = (theme) => ({
 });
 
 const ModeDisplay = (mode) => {
+  switch (mode) {
+    case "class":
+      return "Class";
+    case "quiz":
+      return "Quiz";
+    case "student":
+      return "Student";
+    case "stat":
+      return "Statistic";
+    default:
+      return;
+  }
+};
+
+const ContentDisplay = (mode) => {
   switch (mode) {
     case "class":
       return "Class";
@@ -88,9 +106,22 @@ function Content(props) {
         </Toolbar>
       </AppBar>
       <div className={classes.contentWrapper}>
-        <Typography color="textSecondary" align="center">
-          No users for this project yet
-        </Typography>
+        {mode
+          ? (() => {
+              switch (mode) {
+                case "class":
+                  return <ClassIndex />;
+                case "quiz":
+                  return <QuizIndex />;
+                case "student":
+                  return <StudentIndex />;
+                case "stat":
+                  return <StatIndex />;
+                default:
+                  return null;
+              }
+            })()
+          : null}
       </div>
     </Paper>
   );
