@@ -90,7 +90,7 @@ export default function TransitionsModal() {
       alert("Class ID is required");
       return setErr({ error: "Class ID is required" });
     }
-    console.log(class_name.value, class_id.value);
+    //console.log(class_name.value, class_id.value);
     const url = `http://${host}:5000/addclass`;
     const payload = {
       uid: user.uid,
@@ -134,7 +134,7 @@ export default function TransitionsModal() {
       >
         <DialogTitle id="form-dialog-title">Add Class</DialogTitle>
         <form noValidate onSubmit={addClass}>
-          <DialogContent className={classes.paper}>
+          <DialogContent className={classes.paper} style={{paddingTop:0,marginTop:0}}>
             <TextField
               required
               autoFocus

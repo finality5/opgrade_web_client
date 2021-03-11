@@ -172,8 +172,8 @@ function Paperbase(props) {
           .then((res) => {
             setFetch(false);
             setUser(res);
-            console.log('@@@Ticker')
-            console.log('@',res)
+            //console.log('@@@Ticker')
+            //console.log('@',res)
           })
           .catch((err) => {
             setFetch(false);

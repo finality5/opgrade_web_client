@@ -78,53 +78,22 @@ function Content(props) {
   const { classes } = props;
   const { setUser, setHost, current, user, mode } = useContext(AppContext);
 
-  return (
-    <Paper className={classes.paper}>
-      <AppBar
-        className={classes.searchBar}
-        position="static"
-        color="default"
-        elevation={0}
-      >
-        <Toolbar>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs>
-              <Typography className={classes.modeText} align="left">
-                {mode ? ModeDisplay(mode) : null}
-              </Typography>
-            </Grid>
-            <Grid item>
-              <Button
-                variant="contained"
-                color="primary"
-                className={classes.addUser}
-              >
-                Add user
-              </Button>
-            </Grid>
-          </Grid>
-        </Toolbar>
-      </AppBar>
-      <div className={classes.contentWrapper}>
-        {mode
-          ? (() => {
-              switch (mode) {
-                case "class":
-                  return <ClassIndex />;
-                case "quiz":
-                  return <QuizIndex />;
-                case "student":
-                  return <StudentIndex />;
-                case "stat":
-                  return <StatIndex />;
-                default:
-                  return null;
-              }
-            })()
-          : null}
-      </div>
-    </Paper>
-  );
+  return mode
+    ? (() => {
+        switch (mode) {
+          case "class":
+            return <ClassIndex />;
+          case "quiz":
+            return <QuizIndex />;
+          case "student":
+            return <StudentIndex />;
+          case "stat":
+            return <StatIndex />;
+          default:
+            return null;
+        }
+      })()
+    : null;
 }
 
 Content.propTypes = {
