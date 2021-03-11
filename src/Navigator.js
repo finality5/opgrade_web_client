@@ -1,46 +1,23 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import { withStyles } from '@material-ui/core/styles';
-import Divider from '@material-ui/core/Divider';
-import Drawer from '@material-ui/core/Drawer';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import HomeIcon from '@material-ui/icons/Home';
-import PeopleIcon from '@material-ui/icons/People';
-import DnsRoundedIcon from '@material-ui/icons/DnsRounded';
-import PermMediaOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActual';
-import PublicIcon from '@material-ui/icons/Public';
-import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
-import SettingsInputComponentIcon from '@material-ui/icons/SettingsInputComponent';
-import TimerIcon from '@material-ui/icons/Timer';
-import SettingsIcon from '@material-ui/icons/Settings';
-import PhonelinkSetupIcon from '@material-ui/icons/PhonelinkSetup';
+import React, { useState, useEffect, useContext } from "react";
+import PropTypes from "prop-types";
+import clsx from "clsx";
+import { withStyles } from "@material-ui/core/styles";
+import Divider from "@material-ui/core/Divider";
+import Drawer from "@material-ui/core/Drawer";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import HomeIcon from "@material-ui/icons/Home";
+import PeopleIcon from "@material-ui/icons/People";
+import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
+import PermMediaOutlinedIcon from "@material-ui/icons/PhotoSizeSelectActual";
+import PublicIcon from "@material-ui/icons/Public";
+import ClassIcon from "@material-ui/icons/Class";
 
-const categories = [
-  {
-    id: 'Develop',
-    children: [
-      { id: 'Class', icon: <PeopleIcon />, active: true },
-      { id: 'Quiz', icon: <DnsRoundedIcon /> },
-      { id: 'Student', icon: <PermMediaOutlinedIcon /> },
-      { id: 'Statistic', icon: <PublicIcon /> },
-      { id: 'Functions', icon: <SettingsEthernetIcon /> },
-      { id: 'ML Kit', icon: <SettingsInputComponentIcon /> },
-    ],
-  },
-  {
-    id: 'Quality',
-    children: [
-      { id: 'Analytics', icon: <SettingsIcon /> },
-      { id: 'Performance', icon: <TimerIcon /> },
-      { id: 'Test Lab', icon: <PhonelinkSetupIcon /> },
-    ],
-  },
-  
-];
+import EqualizerIcon from "@material-ui/icons/Equalizer";
+import SchoolIcon from "@material-ui/icons/School";
+import { AppContext } from "./context/context";
 
 const styles = (theme) => ({
   categoryHeader: {
@@ -53,14 +30,14 @@ const styles = (theme) => ({
   item: {
     paddingTop: 1,
     paddingBottom: 1,
-    color: 'rgba(255, 255, 255, 0.7)',
-    '&:hover,&:focus': {
-      backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    color: "rgba(255, 255, 255, 0.7)",
+    "&:hover,&:focus": {
+      backgroundColor: "rgba(255, 255, 255, 0.08)",
     },
   },
   itemCategory: {
-    backgroundColor: '#232f3e',
-    boxShadow: '0 -1px 0 #404854 inset',
+    backgroundColor: "#232f3e",
+    boxShadow: "0 -1px 0 #404854 inset",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
   },
@@ -69,13 +46,13 @@ const styles = (theme) => ({
     color: theme.palette.common.white,
   },
   itemActiveItem: {
-    color: '#4fc3f7',
+    color: "#4fc3f7",
   },
   itemPrimary: {
-    fontSize: 'inherit',
+    fontSize: "inherit",
   },
   itemIcon: {
-    minWidth: 'auto',
+    minWidth: "auto",
     marginRight: theme.spacing(2),
   },
   divider: {
@@ -85,11 +62,75 @@ const styles = (theme) => ({
 
 function Navigator(props) {
   const { classes, ...other } = props;
+  const { user,setCurrent ,setMode} = useContext(AppContext);
+  const [categories, setCate] = useState([]);
+  const [trigger, setTrigger] = useState({ class_id: "", mode: "" });
+  useEffect(() => {
+    if (user) {
+      let data = [];
+      user.class_data.forEach((obj) => {
+        data.push({
+          id: obj.class_key,
+          class_name: obj.class_name,
+          children: [
+            {
+              id: "Class",
+              icon: <SchoolIcon />,
+              mode: "class",
+              active:
+                trigger.class_id === obj.class_key && trigger.class_mode === "class"
+                  ? true
+                  : false,
+            },
+            {
+              id: "Quiz",
+              icon: <ClassIcon />,
+              mode: "quiz",
+              active:
+                trigger.class_id === obj.class_key && trigger.class_mode === "quiz"
+                  ? true
+                  : false,
+            },
+            {
+              id: "Student",
+              icon: <PeopleIcon />,
+              mode: "student",
+              active:
+                trigger.class_id === obj.class_key && trigger.class_mode === "student"
+                  ? true
+                  : false,
+            },
+            {
+              id: "Statistic",
+              icon: <EqualizerIcon />,
+              mode: "stat",
+              active:
+                trigger.class_id === obj.class_key && trigger.class_mode === "stat"
+                  ? true
+                  : false,
+            },
+          ],
+        });
+      });
+      setCate(data);
+    }
+  }, [user, trigger]);
 
+  useEffect(() => {
+    if (user && trigger.class_id!=='' && trigger.mode!=='') {
+      setCurrent(user.class_data.filter(obj=>obj.class_key===trigger.class_id)[0])
+    }
+      
+  },[trigger])
+
+  //console.log('@',trigger)
+  //console.log("#", categories);
   return (
     <Drawer variant="permanent" {...other}>
       <List disablePadding>
-        <ListItem className={clsx(classes.firebase, classes.item, classes.itemCategory)}>
+        <ListItem
+          className={clsx(classes.firebase, classes.item, classes.itemCategory)}
+        >
           Opgrade Office
         </ListItem>
         <ListItem className={clsx(classes.item, classes.itemCategory)}>
@@ -104,7 +145,7 @@ function Navigator(props) {
             Project Admin
           </ListItemText>
         </ListItem>
-        {categories.map(({ id, children }) => (
+        {categories.map(({ id, class_name, children }) => (
           <React.Fragment key={id}>
             <ListItem className={classes.categoryHeader}>
               <ListItemText
@@ -112,14 +153,18 @@ function Navigator(props) {
                   primary: classes.categoryHeaderPrimary,
                 }}
               >
-                {id}
+                {class_name}
               </ListItemText>
             </ListItem>
-            {children.map(({ id: childId, icon, active }) => (
+            {children.map(({ id: childId, icon, active, mode }) => (
               <ListItem
                 key={childId}
                 button
                 className={clsx(classes.item, active && classes.itemActiveItem)}
+                onClick={() => {
+                  setMode(mode)
+                  setTrigger({ class_id: id, class_mode: mode });
+                }}
               >
                 <ListItemIcon className={classes.itemIcon}>{icon}</ListItemIcon>
                 <ListItemText
