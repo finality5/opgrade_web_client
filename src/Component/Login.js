@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn({ history }) {
+const Login=({ history })=> {
   const { currentUser } = useContext(AuthContext);
   const [Firebaseload, setFirebaseload] = useState({ loading: true });
   const [Load, setLoad] = useState({ loading: false });
@@ -172,3 +172,4 @@ export default function SignIn({ history }) {
     </div>
   );
 }
+export default withRouter(Login);

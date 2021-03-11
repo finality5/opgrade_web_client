@@ -56,7 +56,6 @@ function Header(props) {
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
-    console.log("#", event);
   };
 
   const handleClose = () => {

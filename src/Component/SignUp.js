@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignUp({ history }) {
+const SignUp=({ history })=>{
   const classes = useStyles();
   const { currentUser } = useContext(AuthContext);
   const [sign, setSign] = useState({ signed: false });
@@ -223,3 +223,5 @@ export default function SignUp({ history }) {
     </div>
   );
 }
+
+export default withRouter(SignUp);
