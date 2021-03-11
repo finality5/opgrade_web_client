@@ -14,11 +14,11 @@ import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
 import PermMediaOutlinedIcon from "@material-ui/icons/PhotoSizeSelectActual";
 import PublicIcon from "@material-ui/icons/Public";
 import ClassIcon from "@material-ui/icons/Class";
-
+import AddIcon from '@material-ui/icons/Add';
 import EqualizerIcon from "@material-ui/icons/Equalizer";
 import SchoolIcon from "@material-ui/icons/School";
 import { AppContext } from "./context/context";
-
+import AddClassModal from './Component/AddClassModal'
 const styles = (theme) => ({
   categoryHeader: {
     paddingTop: theme.spacing(2),
@@ -40,6 +40,7 @@ const styles = (theme) => ({
     boxShadow: "0 -1px 0 #404854 inset",
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+    cursor: 'pointer'
   },
   firebase: {
     fontSize: 24,
@@ -49,6 +50,9 @@ const styles = (theme) => ({
     color: "#4fc3f7",
   },
   itemPrimary: {
+    fontSize: "inherit",
+  },
+  itemSecondary: {
     fontSize: "inherit",
   },
   itemIcon: {
@@ -180,6 +184,7 @@ function Navigator(props) {
             <Divider className={classes.divider} />
           </React.Fragment>
         ))}
+        <AddClassModal />
       </List>
     </Drawer>
   );
