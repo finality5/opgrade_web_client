@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import AppBar from "@material-ui/core/AppBar";
@@ -12,6 +12,7 @@ import { DataGrid } from "@material-ui/data-grid";
 import { withStyles } from "@material-ui/core/styles";
 import { AppContext } from "./../context/context";
 import Axios from "axios";
+
 
 const styles = (theme) => ({
   paper: {
@@ -60,25 +61,14 @@ const columns = [
     width: 180,
   },
 
-  //   {
-  //     field: "fullName",
-  //     headerName: "Full name",
-  //     description: "This column has a value getter and is not sortable.",
-  //     sortable: false,
-  //     width: 160,
-  //     valueGetter: (params) =>
-  //       `${params.getValue("firstName") || ""} ${
-  //         params.getValue("lastName") || ""
-  //       }`,
-  //   },
+  
 ];
-
-
 
 const StudentIndex = (props) => {
   const { classes } = props;
   const { setUser, host, current, user, mode } = useContext(AppContext);
   const [student, setStudent] = useState([]);
+  
   useEffect(() => {
     if (current) {
       const url = `http://${host}:5000/getstudent?uid=${user.uid}&class_key=${current.class_key}`;
@@ -97,8 +87,10 @@ const StudentIndex = (props) => {
         }
       });
     }
-  }, [current,user]);
-  //console.log(student);
+  }, [current, user]);
+  
+
+
   return (
     <Paper className={classes.paper}>
       <AppBar
@@ -133,6 +125,7 @@ const StudentIndex = (props) => {
           </Grid>
         </Grid>
       </div>
+      
     </Paper>
   );
 };

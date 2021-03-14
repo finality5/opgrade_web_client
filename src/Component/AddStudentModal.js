@@ -3,6 +3,7 @@ import {
   makeStyles,
   ThemeProvider,
   createMuiTheme,
+  withStyles,
 } from "@material-ui/core/styles";
 
 import List from "@material-ui/core/List";
@@ -27,7 +28,15 @@ import Grid from "@material-ui/core/Grid";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import InputAdornment from "@material-ui/core/InputAdornment";
+import Switch from "@material-ui/core/Switch";
 import { green, red } from "@material-ui/core/colors";
+import { Typography } from "@material-ui/core";
+import Tooltip from "@material-ui/core/Tooltip";
+import * as XLSX from "xlsx";
+import Chip from "@material-ui/core/Chip";
+import Paper from "@material-ui/core/Paper";
+import TagFacesIcon from "@material-ui/icons/TagFaces";
+import Avatar from "@material-ui/core/Avatar";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -48,7 +57,52 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     backgroundColor: theme.palette.primary.main,
   },
+  chip: {
+    margin: theme.spacing(0.5),
+  },
+  listContainer: {
+    display: "flex",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    listStyle: "none",
+    padding: theme.spacing(0.5),
+    margin: 0,
+  },
 }));
+
+const AntSwitch = withStyles((theme) => ({
+  root: {
+    width: 28,
+    height: 16,
+    padding: 0,
+    display: "flex",
+  },
+  switchBase: {
+    padding: 2,
+    color: theme.palette.grey[500],
+    "&$checked": {
+      transform: "translateX(12px)",
+      color: theme.palette.common.white,
+      "& + $track": {
+        opacity: 1,
+        backgroundColor: theme.palette.primary.main,
+        borderColor: theme.palette.primary.main,
+      },
+    },
+  },
+  thumb: {
+    width: 12,
+    height: 12,
+    boxShadow: "none",
+  },
+  track: {
+    border: `1px solid ${theme.palette.grey[500]}`,
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: theme.palette.common.white,
+  },
+  checked: {},
+}))(Switch);
 
 const idChecker = (id) => {
   let check = false;
@@ -64,12 +118,68 @@ export default function TransitionsModal() {
   const [studentId, setId] = useState("");
   const [Err, setErr] = useState({ error: "" });
   const [openModal, setOpenModal] = useState(false);
+  const [isToggle, setToggle] = useState(false);
+  const [items, setItems] = useState([]);
+  const [chipData, setChipData] = React.useState([
+    { key: 0, label: "Angular" },
+    { key: 1, label: "jQuery" },
+    { key: 2, label: "Polymer" },
+    { key: 3, label: "React" },
+    { key: 4, label: "Vue.js" },
+  ]);
+
+  const handleDelete = (chipToDelete) => () => {
+    setItems((chips) => chips.filter((chip) => chip.id !== chipToDelete.id));
+  };
+  const readExcel = (file) => {
+    const promise = new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(file);
+
+      fileReader.onload = (e) => {
+        const bufferArray = e.target.result;
+
+        const wb = XLSX.read(bufferArray, { type: "buffer" });
+
+        const wsname = wb.SheetNames[0];
+
+        const ws = wb.Sheets[wsname];
+
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        resolve(data);
+      };
+
+      fileReader.onerror = (error) => {
+        reject(error);
+        console.log("#", error.message);
+      };
+    });
+
+    promise
+      .then((d) => {
+        let data = d.filter(
+          (obj) => idChecker(String(obj.id)) && obj.firstname && obj.lastname
+        );
+        setItems(data);
+        console.log("# Success reading xlsx");
+      })
+      .catch((e) =>
+        console.log(
+          e.message
+        )
+      );
+  };
+  console.log(items);
   const handleOpen = () => {
     setOpen(true);
   };
 
   const handleClose = () => {
     setOpen(false);
+    setItems([]);
+    setId("");
+    setToggle(false);
   };
 
   const modalClose = (event, reason) => {
@@ -123,14 +233,14 @@ export default function TransitionsModal() {
       .then((res) => {
         setOpen(false);
         setOpenModal(true);
-        setTicker(!ticker)
+        setTicker(!ticker);
         //console.log("#", res);
       })
       .catch((err) => setErr({ error: err.message }));
   };
 
   //if (Err.error) console.log(">>>>", Err.error);
-  
+
   return (
     <div>
       <Button
@@ -147,81 +257,167 @@ export default function TransitionsModal() {
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
       >
-        <DialogTitle id="form-dialog-title">Add Student</DialogTitle>
-        <form noValidate onSubmit={addStudent}>
-          <DialogContent
-            className={classes.paper}
-            style={{ paddingTop: 0, marginTop: 0 }}
+        <DialogTitle id="form-dialog-title">
+          <Grid
+            container
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+            spacing={1}
           >
-            <ThemeProvider theme={theme}>
-              <TextField
-                error={idChecker(studentId) ? false : true}
-                value={studentId}
-                onChange={(e) => setId(e.target.value)}
-                required
-                autoFocus
-                margin="dense"
-                id="student_id"
-                label="Student Id"
-                type="text"
-                fullWidth
-                helperText="5-digit numbers"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <VpnKeyIcon
-                        style={{
-                          color:
-                            idChecker(studentId) && studentId !== ""
-                              ? green[500]
-                              : !idChecker(studentId) && studentId !== ""
-                              ? red[500]
-                              : "#000",
-                        }}
-                      />
-                    </InputAdornment>
-                  ),
-                }}
+            <Grid item>Add Student</Grid>
+            <Grid item>
+              <AntSwitch
+                checked={isToggle}
+                onChange={() => setToggle(!isToggle)}
               />
-            </ThemeProvider>
-            <Grid
-              container
-              direction="row"
-              justify="center"
-              alignItems="flex-end"
-              spacing={1}
-            >
-              <Grid item>
-                <AccountCircle />
-              </Grid>
-              <Grid item>
-                <TextField
-                  required
-                  autoFocus
-                  margin="dense"
-                  id="firstname"
-                  label="First Name"
-                  type="text"
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item>
-                <AccountCircle />
-              </Grid>
-              <Grid item>
-                <TextField
-                  required
-                  autoFocus
-                  margin="dense"
-                  id="lastname"
-                  label="Last Name"
-                  type="text"
-                  fullWidth
-                />
-              </Grid>
             </Grid>
-          </DialogContent>
+          </Grid>
+        </DialogTitle>
+        <form noValidate onSubmit={addStudent}>
+          {!isToggle ? (
+            <DialogContent
+              className={classes.paper}
+              style={{ paddingTop: 0, marginTop: 0 }}
+            >
+              <ThemeProvider theme={theme}>
+                <TextField
+                  error={idChecker(studentId) ? false : true}
+                  value={studentId}
+                  onChange={(e) => setId(e.target.value)}
+                  required
+                  autoFocus
+                  margin="dense"
+                  id="student_id"
+                  label="Student Id"
+                  type="text"
+                  fullWidth
+                  helperText="5-digit numbers"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <VpnKeyIcon
+                          style={{
+                            color:
+                              idChecker(studentId) && studentId !== ""
+                                ? green[500]
+                                : !idChecker(studentId) && studentId !== ""
+                                ? red[500]
+                                : "#000",
+                          }}
+                        />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </ThemeProvider>
+              <Grid
+                container
+                direction="row"
+                justify="center"
+                alignItems="flex-end"
+                spacing={1}
+              >
+                <Grid item>
+                  <AccountCircle />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    required
+                    autoFocus
+                    margin="dense"
+                    id="firstname"
+                    label="First Name"
+                    type="text"
+                    fullWidth
+                  />
+                </Grid>
+
+                <Grid item>
+                  <AccountCircle />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    required
+                    autoFocus
+                    margin="dense"
+                    id="lastname"
+                    label="Last Name"
+                    type="text"
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+            </DialogContent>
+          ) : (
+            <DialogContent
+              style={{
+                width: 454,
+                minHeight: 145,
+                paddingTop: 0,
+                marginTop: 0,
+              }}
+            >
+              <Grid
+                container
+                spacing={0}
+                direction="column"
+                alignItems="center"
+                justify="center"
+                style={{ marginTop: "10%", }}
+              >
+                <Grid item>
+                  <input
+                    accept=".xlsx"
+                    style={{ display: "none" }}
+                    id="contained-button-file"
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      readExcel(file);
+                    }}
+                  />
+                  <label htmlFor="contained-button-file">
+                    <Tooltip
+                      title="Make sure that your file respectively contains 3 rows of student's id,
+                    firstname and lastname with header (id,firstname,lastname)"
+                    >
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        component="span"
+                      >
+                        Upload Excel
+                      </Button>
+                    </Tooltip>
+                  </label>
+                </Grid>
+              </Grid>
+              {items ? (
+                <div className={classes.listContainer}>
+                  {items.map((data) => {
+                    return (
+                      <li key={data.id}>
+                        <Tooltip
+                          title={`${data.id} ${data.firstname} ${data.lastname}`}
+                        >
+                          <Chip
+                            variant="outlined"
+                            avatar={<Avatar>{data.firstname[0]}</Avatar>}
+                            label={`${data.id}`}
+                            color="primary"
+                            clickable
+                            onDelete={handleDelete(data)}
+                            className={classes.chip}
+                          />
+                        </Tooltip>
+                      </li>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </DialogContent>
+          )}
           <DialogActions>
             <Button onClick={handleClose} color="primary">
               Cancel
