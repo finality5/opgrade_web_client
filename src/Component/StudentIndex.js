@@ -5,8 +5,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import Button from "@material-ui/core/Button";
-import AddIcon from "@material-ui/icons/Add";
+
 import AddStudentModal from "./AddStudentModal";
 import { DataGrid } from "@material-ui/data-grid";
 import { withStyles } from "@material-ui/core/styles";

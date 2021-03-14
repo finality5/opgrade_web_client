@@ -37,6 +37,8 @@ import Chip from "@material-ui/core/Chip";
 import Paper from "@material-ui/core/Paper";
 import TagFacesIcon from "@material-ui/icons/TagFaces";
 import Avatar from "@material-ui/core/Avatar";
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import RefreshIcon from "@material-ui/icons/Refresh";
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -120,13 +122,6 @@ export default function TransitionsModal() {
   const [openModal, setOpenModal] = useState(false);
   const [isToggle, setToggle] = useState(false);
   const [items, setItems] = useState([]);
-  const [chipData, setChipData] = React.useState([
-    { key: 0, label: "Angular" },
-    { key: 1, label: "jQuery" },
-    { key: 2, label: "Polymer" },
-    { key: 3, label: "React" },
-    { key: 4, label: "Vue.js" },
-  ]);
 
   const handleDelete = (chipToDelete) => () => {
     setItems((chips) => chips.filter((chip) => chip.id !== chipToDelete.id));
@@ -153,6 +148,7 @@ export default function TransitionsModal() {
       fileReader.onerror = (error) => {
         reject(error);
         console.log("#", error.message);
+        setItems([]);
       };
     });
 
@@ -162,15 +158,14 @@ export default function TransitionsModal() {
           (obj) => idChecker(String(obj.id)) && obj.firstname && obj.lastname
         );
         setItems(data);
-        console.log("# Success reading xlsx");
+        //console.log("# Success reading xlsx");
       })
-      .catch((e) =>
-        console.log(
-          e.message
-        )
-      );
+      .catch((e) => {
+        console.log(e.message);
+        setItems([]);
+      });
   };
-  console.log(items);
+  //console.log(items);
   const handleOpen = () => {
     setOpen(true);
   };
@@ -198,45 +193,80 @@ export default function TransitionsModal() {
 
   const addStudent = (event) => {
     event.preventDefault();
-    const { student_id, firstname, lastname } = event.target.elements;
-    if (!student_id.value) {
-      alert("Student ID is required");
-      return setErr({ error: "Student ID is required" });
+    if (!isToggle) {
+      const { student_id, firstname, lastname } = event.target.elements;
+      if (!student_id.value) {
+        alert("Student ID is required");
+        return setErr({ error: "Student ID is required" });
+      }
+      if (!firstname.value) {
+        alert("First Name is required");
+        return setErr({ error: "First Name is required" });
+      }
+      if (!lastname.value) {
+        alert("Last Name is required");
+        return setErr({ error: "Last Name is required" });
+      }
+      if (!idChecker(student_id.value)) {
+        alert("Student ID doesn't match with pattern");
+        return setErr({ error: "Student ID doesn't match with pattern" });
+      }
+      //   console.log(
+      //     student_id.value,
+      //     firstname.value,
+      //     lastname.value,
+      //     current.class_key
+      //   );
+      const url = `http://${host}:5000/addstudent`;
+      const payload = {
+        uid: user.uid,
+        class_key: current.class_key,
+        student: [
+          {
+            student_id: student_id.value,
+            student_name: `${firstname.value} ${lastname.value}`,
+          },
+        ],
+      };
+      axios
+        .post(url, payload)
+        .then((res) => {
+          setOpen(false);
+          setOpenModal(true);
+          setTicker(!ticker);
+          //console.log("#", res);
+        })
+        .catch((err) => setErr({ error: err.message }));
+    } else {
+      if (items.length===0) {
+        return alert(
+          "File is required, make sure that you have uploaded file."
+        );
+      }
+      let tmp = [];
+      items.forEach((obj) => {
+        tmp.push({
+          student_id: String(obj.id),
+          student_name: `${obj.firstname} ${obj.lastname}`,
+        });
+      });
+      const url = `http://${host}:5000/addstudent`;
+      const payload = {
+        uid: user.uid,
+        class_key: current.class_key,
+        student: tmp,
+      };
+      //console.log(tmp);
+      axios
+        .post(url, payload)
+        .then((res) => {
+          setOpen(false);
+          setOpenModal(true);
+          setTicker(!ticker);
+          //console.log("#", res);
+        })
+        .catch((err) => setErr({ error: err.message }));
     }
-    if (!firstname.value) {
-      alert("First Name is required");
-      return setErr({ error: "First Name is required" });
-    }
-    if (!lastname.value) {
-      alert("Last Name is required");
-      return setErr({ error: "Last Name is required" });
-    }
-    if (!idChecker(student_id.value)) {
-      alert("Student ID doesn't match with pattern");
-      return setErr({ error: "Student ID doesn't match with pattern" });
-    }
-    //console.log(student_id.value, firstname.value, lastname.value,current.class_key);
-    const url = `http://${host}:5000/addstudent`;
-    const payload = {
-      uid: user.uid,
-      class_key: current.class_key,
-      student: [
-        {
-          student_id: student_id.value,
-          student_name: `${firstname.value} ${lastname.value}`,
-        },
-      ],
-    };
-
-    axios
-      .post(url, payload)
-      .then((res) => {
-        setOpen(false);
-        setOpenModal(true);
-        setTicker(!ticker);
-        //console.log("#", res);
-      })
-      .catch((err) => setErr({ error: err.message }));
   };
 
   //if (Err.error) console.log(">>>>", Err.error);
@@ -364,7 +394,7 @@ export default function TransitionsModal() {
                 direction="column"
                 alignItems="center"
                 justify="center"
-                style={{ marginTop: "10%", }}
+                style={{ marginTop: "10%" }}
               >
                 <Grid item>
                   <input
@@ -386,6 +416,13 @@ export default function TransitionsModal() {
                         variant="contained"
                         color="primary"
                         component="span"
+                        endIcon={
+                          items.length === 0 ? (
+                            <CloudUploadIcon />
+                          ) : (
+                            <RefreshIcon />
+                          )
+                        }
                       >
                         Upload Excel
                       </Button>
