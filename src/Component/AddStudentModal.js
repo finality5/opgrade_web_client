@@ -6,20 +6,16 @@ import {
   withStyles,
 } from "@material-ui/core/styles";
 
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
 import AddIcon from "@material-ui/icons/Add";
-import clsx from "clsx";
+
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
+
 import DialogTitle from "@material-ui/core/DialogTitle";
-import Axios from "axios";
+
 import { AppContext } from "./../context/context";
 import axios from "axios";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -30,12 +26,11 @@ import VpnKeyIcon from "@material-ui/icons/VpnKey";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Switch from "@material-ui/core/Switch";
 import { green, red } from "@material-ui/core/colors";
-import { Typography } from "@material-ui/core";
+
 import Tooltip from "@material-ui/core/Tooltip";
 import * as XLSX from "xlsx";
 import Chip from "@material-ui/core/Chip";
-import Paper from "@material-ui/core/Paper";
-import TagFacesIcon from "@material-ui/icons/TagFaces";
+
 import Avatar from "@material-ui/core/Avatar";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import RefreshIcon from "@material-ui/icons/Refresh";
@@ -238,7 +233,7 @@ export default function TransitionsModal() {
         })
         .catch((err) => setErr({ error: err.message }));
     } else {
-      if (items.length===0) {
+      if (items.length === 0) {
         return alert(
           "File is required, make sure that you have uploaded file."
         );

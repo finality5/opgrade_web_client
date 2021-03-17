@@ -10,11 +10,9 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import HomeIcon from "@material-ui/icons/Home";
 import PeopleIcon from "@material-ui/icons/People";
-import DnsRoundedIcon from "@material-ui/icons/DnsRounded";
-import PermMediaOutlinedIcon from "@material-ui/icons/PhotoSizeSelectActual";
-import PublicIcon from "@material-ui/icons/Public";
+
 import ClassIcon from "@material-ui/icons/Class";
-import AddIcon from "@material-ui/icons/Add";
+
 import EqualizerIcon from "@material-ui/icons/Equalizer";
 import SchoolIcon from "@material-ui/icons/School";
 import { AppContext } from "./context/context";

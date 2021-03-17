@@ -1,15 +1,13 @@
-import React, { useState,useContext } from "react";
+import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import AppBar from "@material-ui/core/AppBar";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
+
 import Grid from "@material-ui/core/Grid";
 import Hidden from "@material-ui/core/Hidden";
 import IconButton from "@material-ui/core/IconButton";
-import Link from "@material-ui/core/Link";
+
 import MenuIcon from "@material-ui/icons/Menu";
-import Tab from "@material-ui/core/Tab";
-import Tabs from "@material-ui/core/Tabs";
+
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
@@ -48,7 +46,15 @@ const styles = (theme) => ({
 
 function Header(props) {
   const { classes, onDrawerToggle } = props;
-  const { setUser, setHost,current,user,mode,setMode,setCurrent } = useContext(AppContext);
+  const {
+    setUser,
+    setHost,
+    current,
+    user,
+    mode,
+    setMode,
+    setCurrent,
+  } = useContext(AppContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -130,15 +136,18 @@ function Header(props) {
         <Toolbar>
           <Grid container alignItems="center" spacing={1}>
             <Grid item xs>
-              <Typography color="inherit" variant="h5" component="h1" style={{marginBottom:20,fontWeight:'bold'
-              }}>
-                { current?current.class_name:'Opgrade'}
+              <Typography
+                color="inherit"
+                variant="h5"
+                component="h1"
+                style={{ marginBottom: 20, fontWeight: "bold" }}
+              >
+                {current ? current.class_name : "Opgrade"}
               </Typography>
             </Grid>
           </Grid>
         </Toolbar>
       </AppBar>
-      
     </React.Fragment>
   );
 }

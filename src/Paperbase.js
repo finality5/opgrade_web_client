@@ -7,8 +7,7 @@ import {
 } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Hidden from "@material-ui/core/Hidden";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
+
 import Navigator from "./Navigator";
 import Content from "./Content";
 import Header from "./Header";
@@ -156,7 +155,7 @@ const styles = {
 function Paperbase(props) {
   const { classes } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const { user, setUser, setHost,ticker } = useContext(AppContext);
+  const {  setUser, setHost,ticker } = useContext(AppContext);
   const [error, setError] = useState();
   const [isFetch, setFetch] = useState(false);
 
