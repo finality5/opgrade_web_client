@@ -71,7 +71,9 @@ const quizType = (type) => {
 
 const QuizIndex = (props) => {
   const { classes } = props;
-  const { setUser, host, current, user, mode } = useContext(AppContext);
+  const { setUser, host, current, user, setMode, setCurrentQuiz } = useContext(
+    AppContext
+  );
   const [quiz, setQuiz] = useState();
   useEffect(() => {
     if (current) {
@@ -81,7 +83,7 @@ const QuizIndex = (props) => {
       });
     }
   }, [current, user, host]);
-  console.log(quiz);
+  //console.log(quiz);
   return (
     <Paper className={classes.paper}>
       <AppBar
@@ -113,7 +115,20 @@ const QuizIndex = (props) => {
         >
           {quiz
             ? quiz.map((obj, index) => (
-              <Grid item xs={12} sm={4} key={ obj.quiz_key}>
+                <Grid
+                  item
+                  xs={12}
+                  sm={4}
+                  key={obj.quiz_key}
+                  onClick={() => {
+                    setMode("review");
+                    setCurrentQuiz({
+                      classKey: current.class_key,
+                      quizKey: obj.quiz_key,
+                      quizName: obj.quiz_name,
+                    });
+                  }}
+                >
                   <Card
                     style={{
                       width: 300,
