@@ -36,6 +36,11 @@ import CardActionArea from "@material-ui/core/CardActionArea";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
+import NavigationIcon from "@material-ui/icons/Navigation";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 const styles = (theme) => ({
   root: {
     width: "100%",
@@ -80,6 +85,16 @@ const styles = (theme) => ({
     height: 20,
     fill: "white",
   },
+  margin: {
+    margin: theme.spacing(1),
+    position: "fixed",
+    bottom: theme.spacing(4),
+    right: theme.spacing(4),
+  },
+  extendedIcon: {
+    marginRight: theme.spacing(1),
+    fill: "white",
+  },
 });
 
 const quizType = (type) => {
@@ -120,7 +135,7 @@ const theme = createMuiTheme({
 
 const ColorButton = withStyles((theme) => ({
   root: {
-    minWidth:100,
+    minWidth: 100,
     color: "white",
     backgroundColor: "#2c393fff",
     "&:hover": {
@@ -140,11 +155,15 @@ const ReviewIndex = (props) => {
     setCurrentQuiz,
   } = useContext(AppContext);
   const [data, setData] = useState();
-
+  const [isTicker, setTicker] = useState(false);
   const [grade, setGrade] = useState([]);
   const [ungrade, setUngrade] = useState([]);
   const [duplicate, setDuplicate] = useState([]);
   const [open, setOpen] = useState([]);
+  const [selectDuplicate, setSelectDuplicate] = useState({
+    studentKey: "",
+    scoreKey: "",
+  });
 
   useEffect(() => {
     if (currentQuiz) {
@@ -156,8 +175,8 @@ const ReviewIndex = (props) => {
         })
         .catch((err) => console.log(err.message));
     }
-  }, [user, host, currentQuiz]);
-  console.log(grade, ungrade, duplicate);
+  }, [user, host, currentQuiz, isTicker]);
+  //console.log(grade, ungrade, duplicate);
 
   useEffect(() => {
     if (data) {
@@ -177,7 +196,37 @@ const ReviewIndex = (props) => {
       ),
     ]);
   };
-  //console.log(open);
+  const handleClickAway = () => {
+    setSelectDuplicate({ studentKey: "", scoreKey: "" });
+  };
+
+  const duplicateSubmit = () => {
+    if (selectDuplicate.studentKey !== "" && selectDuplicate.scoreKey !== "") {
+      //const filtered = student.quiz.filter((obj) => obj.score_key !== selectScore)
+      let filteredStudent = duplicate.filter(
+        (obj) => obj.student_key === selectDuplicate.studentKey
+      );
+      let filteredScore = filteredStudent[0]['quiz'].filter(obj => obj.score_key !== selectDuplicate.scoreKey)
+      let data = []
+      filteredScore.forEach(obj => data.push(obj.score_key));
+      console.log(data)
+      const url = `http://${host}:5000/duplicate`;
+      const payload = {
+        uid: user.uid,
+        class_key: currentQuiz.classKey,
+        score_key: data,
+      };
+      axios.post(url, payload).then((res) => {
+        if (res.status === 200) {
+          setTicker(!isTicker);
+          //console.log(res.data.message);
+        } else {
+          console.log(res.data.message);
+        }
+      });
+    }
+  };
+  //console.log(selectDuplicate);
   return (
     <Paper className={classes.paper}>
       <AppBar
@@ -257,7 +306,7 @@ const ReviewIndex = (props) => {
                             <ListItem
                               button
                               className={classes.nested}
-                              key={obj2.quiz_key}
+                              key={obj2.score_key}
                             >
                               <Grid
                                 container
@@ -325,7 +374,6 @@ const ReviewIndex = (props) => {
                                       <ColorButton
                                         variant="contained"
                                         color="primary"
-                                        
                                       >
                                         Re-grade
                                       </ColorButton>
@@ -334,7 +382,6 @@ const ReviewIndex = (props) => {
                                       <ColorButton
                                         variant="contained"
                                         color="primary"
-                                        
                                       >
                                         Export
                                       </ColorButton>
@@ -343,7 +390,6 @@ const ReviewIndex = (props) => {
                                       <ColorButton
                                         variant="contained"
                                         color="primary"
-                                        
                                       >
                                         Remove
                                       </ColorButton>
@@ -404,50 +450,177 @@ const ReviewIndex = (props) => {
               ))
             : null}
         </List>
-        <List
-          component="nav"
-          aria-labelledby="nested-list-subheader"
-          subheader={
-            <ListSubheader component="div" id="nested-list-subheader">
-              Duplicated
-            </ListSubheader>
-          }
-          className={classes.root}
-        >
-          {duplicate
-            ? duplicate.map((obj) => (
-                <React.Fragment key={obj.student_key}>
-                  <ListItem button onClick={() => handleOpen(obj.student_key)}>
-                    <ListItemIcon>
-                      <WarningIcon style={{ fill: "orange" }} />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={`${obj.student_id} | ${obj.student_name}`}
-                    />
-                    {open.find((item) => item.key === obj.student_key).open ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    )}
-                  </ListItem>
-                  <Collapse
-                    in={open.find((item) => item.key === obj.student_key).open}
-                    timeout="auto"
-                    unmountOnExit
-                  >
-                    <List component="div" disablePadding>
-                      <ListItem button className={classes.nested}>
-                        <ListItemIcon>
-                          <StarBorder />
-                        </ListItemIcon>
-                        <ListItemText primary="Starred" />
-                      </ListItem>
-                    </List>
-                  </Collapse>
-                </React.Fragment>
-              ))
-            : null}
-        </List>
+        <ClickAwayListener onClickAway={handleClickAway}>
+          <List
+            component="nav"
+            aria-labelledby="nested-list-subheader"
+            subheader={
+              <ListSubheader component="div" id="nested-list-subheader">
+                Duplicated
+              </ListSubheader>
+            }
+            className={classes.root}
+          >
+            {duplicate
+              ? duplicate.map((obj) => (
+                  <React.Fragment key={obj.student_key}>
+                    <ListItem
+                      button
+                      onClick={() => handleOpen(obj.student_key)}
+                    >
+                      <ListItemIcon>
+                        <WarningIcon style={{ fill: "orange" }} />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={`${obj.student_id} | ${obj.student_name}`}
+                      />
+                      {open.find((item) => item.key === obj.student_key)
+                        .open ? (
+                        <ExpandLess />
+                      ) : (
+                        <ExpandMore />
+                      )}
+                    </ListItem>
+                    <Collapse
+                      in={
+                        open.find((item) => item.key === obj.student_key).open
+                      }
+                      timeout="auto"
+                      unmountOnExit
+                    >
+                      <List component="div" disablePadding>
+                        {obj.quiz
+                          ? obj.quiz.map((obj2) => (
+                              <ListItem
+                                style={{
+                                  backgroundColor:
+                                    obj.student_key ===
+                                      selectDuplicate.studentKey &&
+                                    obj2.score_key === selectDuplicate.scoreKey
+                                      ? "#2c393fff"
+                                      : null,
+                                }}
+                                button
+                                className={classes.nested}
+                                key={obj2.score_key}
+                                onClick={() =>
+                                  setSelectDuplicate({
+                                    studentKey: obj.student_key,
+                                    scoreKey: obj2.score_key,
+                                  })
+                                }
+                              >
+                                <Grid
+                                  container
+                                  direction="row"
+                                  justify="flex-start"
+                                  alignItems="center"
+                                  spacing={5}
+                                >
+                                  <Grid item>
+                                    <HtmlTooltip
+                                      placement="right"
+                                      title={
+                                        <React.Fragment>
+                                          <img
+                                            width={500}
+                                            src={obj2.url}
+                                            alt="score"
+                                          />
+                                        </React.Fragment>
+                                      }
+                                    >
+                                      <img
+                                        width={200}
+                                        src={obj2.url}
+                                        alt="score"
+                                      />
+                                    </HtmlTooltip>
+                                  </Grid>
+                                  <Grid item>
+                                    <Grid
+                                      container
+                                      direction="column"
+                                      justify="center"
+                                      alignItems="flex-start"
+                                      spacing={1}
+                                    >
+                                      <Grid item>
+                                        <Card
+                                          style={{
+                                            width: 200,
+                                            backgroundColor:
+                                              obj.student_key ===
+                                                selectDuplicate.studentKey &&
+                                              obj2.score_key ===
+                                                selectDuplicate.scoreKey
+                                                ? "white"
+                                                : "#2c393fff",
+                                            borderRadius: 20,
+                                            padding: 10,
+                                          }}
+                                        >
+                                          <CardActionArea>
+                                            <CardContent>
+                                              <Typography
+                                                gutterBottom
+                                                style={{
+                                                  color:
+                                                    obj.student_key ===
+                                                      selectDuplicate.studentKey &&
+                                                    obj2.score_key ===
+                                                      selectDuplicate.scoreKey
+                                                      ? "#2c393fff"
+                                                      : "white",
+                                                }}
+                                              >
+                                                {`Student ID: ${obj.student_id}`}
+                                              </Typography>
+                                              <Typography
+                                                gutterBottom
+                                                style={{
+                                                  color:
+                                                    obj.student_key ===
+                                                      selectDuplicate.studentKey &&
+                                                    obj2.score_key ===
+                                                      selectDuplicate.scoreKey
+                                                      ? "#2c393fff"
+                                                      : "white",
+                                                }}
+                                              >
+                                                {`Result: ${obj2.result}`}
+                                              </Typography>
+                                            </CardContent>
+                                          </CardActionArea>
+                                        </Card>
+                                      </Grid>
+                                    </Grid>
+                                  </Grid>
+                                </Grid>
+                              </ListItem>
+                            ))
+                          : null}
+                      </List>
+                    </Collapse>
+                  </React.Fragment>
+                ))
+              : null}
+          </List>
+        </ClickAwayListener>
+
+        {selectDuplicate.studentKey !== "" &&
+        selectDuplicate.scoreKey !== "" ? (
+          <Fab
+            variant="extended"
+            color="primary"
+            aria-label="add"
+            className={classes.margin}
+            onClick={() => duplicateSubmit()}
+          >
+            <CheckCircleIcon className={classes.extendedIcon} />
+            Submit
+          </Fab>
+        ) : null}
       </div>
     </Paper>
   );

@@ -54,6 +54,7 @@ function Header(props) {
     mode,
     setMode,
     setCurrent,
+    setCurrentQuiz
   } = useContext(AppContext);
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -116,6 +117,7 @@ function Header(props) {
                       setHost();
                       setMode();
                       setCurrent();
+                      setCurrentQuiz();
                     }}
                   >
                     {option}
