@@ -5,7 +5,6 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-
 import {
   withStyles,
   createMuiTheme,
@@ -22,25 +21,22 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Collapse from "@material-ui/core/Collapse";
-
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import StarBorder from "@material-ui/icons/StarBorder";
-import PersonIcon from "@material-ui/icons/Person";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import Tooltip from "@material-ui/core/Tooltip";
 import WarningIcon from "@material-ui/icons/Warning";
 import AssignmentLateIcon from "@material-ui/icons/AssignmentLate";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
-import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import Fab from "@material-ui/core/Fab";
-import AddIcon from "@material-ui/icons/Add";
-import NavigationIcon from "@material-ui/icons/Navigation";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import Backdrop from "@material-ui/core/Backdrop";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import AddImageModal from "./AddImageModal"
 const styles = (theme) => ({
   root: {
     width: "100%",
@@ -94,6 +90,10 @@ const styles = (theme) => ({
   extendedIcon: {
     marginRight: theme.spacing(1),
     fill: "white",
+  },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+    color: "#fff",
   },
 });
 
@@ -206,10 +206,12 @@ const ReviewIndex = (props) => {
       let filteredStudent = duplicate.filter(
         (obj) => obj.student_key === selectDuplicate.studentKey
       );
-      let filteredScore = filteredStudent[0]['quiz'].filter(obj => obj.score_key !== selectDuplicate.scoreKey)
-      let data = []
-      filteredScore.forEach(obj => data.push(obj.score_key));
-      console.log(data)
+      let filteredScore = filteredStudent[0]["quiz"].filter(
+        (obj) => obj.score_key !== selectDuplicate.scoreKey
+      );
+      let data = [];
+      filteredScore.forEach((obj) => data.push(obj.score_key));
+      console.log(data);
       const url = `http://${host}:5000/duplicate`;
       const payload = {
         uid: user.uid,
@@ -262,7 +264,7 @@ const ReviewIndex = (props) => {
                 </ThemeProvider>
               </Grid>
               <Grid item>
-                <AddQuizModal />
+                <AddImageModal />
               </Grid>
             </Grid>
           ) : null}
@@ -622,6 +624,9 @@ const ReviewIndex = (props) => {
           </Fab>
         ) : null}
       </div>
+      <Backdrop className={classes.backdrop} open={data?false:true}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </Paper>
   );
 };
