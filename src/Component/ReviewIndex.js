@@ -29,12 +29,13 @@ import StarBorder from "@material-ui/icons/StarBorder";
 import PersonIcon from "@material-ui/icons/Person";
 import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import Tooltip from "@material-ui/core/Tooltip";
-import WarningIcon from '@material-ui/icons/Warning';
-import AssignmentLateIcon from '@material-ui/icons/AssignmentLate';
+import WarningIcon from "@material-ui/icons/Warning";
+import AssignmentLateIcon from "@material-ui/icons/AssignmentLate";
 import Card from "@material-ui/core/Card";
 import CardActionArea from "@material-ui/core/CardActionArea";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
+import Button from "@material-ui/core/Button";
 const styles = (theme) => ({
   root: {
     width: "100%",
@@ -97,8 +98,8 @@ const HtmlTooltip = withStyles((theme) => ({
     backgroundColor: theme.palette.common.white,
     color: "rgba(0, 0, 0, 0.87)",
     minWidth: 415,
-    
-    boxShadow: theme.shadows[1]
+
+    boxShadow: theme.shadows[1],
   },
 }))(Tooltip);
 
@@ -116,6 +117,17 @@ const theme = createMuiTheme({
     },
   },
 });
+
+const ColorButton = withStyles((theme) => ({
+  root: {
+    minWidth:100,
+    color: "white",
+    backgroundColor: "#2c393fff",
+    "&:hover": {
+      backgroundColor: "#2c393fff",
+    },
+  },
+}))(Button);
 
 const ReviewIndex = (props) => {
   const { classes } = props;
@@ -145,7 +157,7 @@ const ReviewIndex = (props) => {
         .catch((err) => console.log(err.message));
     }
   }, [user, host, currentQuiz]);
-  //console.log(grade, ungrade, duplicate);
+  console.log(grade, ungrade, duplicate);
 
   useEffect(() => {
     if (data) {
@@ -252,17 +264,92 @@ const ReviewIndex = (props) => {
                                 direction="row"
                                 justify="flex-start"
                                 alignItems="center"
+                                spacing={5}
                               >
-                              <HtmlTooltip
-                                placement="right"
-                                  title={
-                                    <React.Fragment>
-                                      <img width={400} src={obj2.url} alt="score" />
-                                    </React.Fragment>
-                                  }
-                                >
-                                  <img width={100} src={obj2.url} alt="score" />
-                                </HtmlTooltip>
+                                <Grid item>
+                                  <HtmlTooltip
+                                    placement="right"
+                                    title={
+                                      <React.Fragment>
+                                        <img
+                                          width={500}
+                                          src={obj2.url}
+                                          alt="score"
+                                        />
+                                      </React.Fragment>
+                                    }
+                                  >
+                                    <img
+                                      width={200}
+                                      src={obj2.url}
+                                      alt="score"
+                                    />
+                                  </HtmlTooltip>
+                                </Grid>
+                                <Grid item>
+                                  <Grid
+                                    container
+                                    direction="column"
+                                    justify="center"
+                                    alignItems="flex-start"
+                                    spacing={1}
+                                  >
+                                    <Grid item>
+                                      <Card
+                                        style={{
+                                          width: 200,
+                                          backgroundColor: "#2c393fff",
+                                          borderRadius: 20,
+                                          padding: 10,
+                                        }}
+                                      >
+                                        <CardActionArea>
+                                          <CardContent>
+                                            <Typography
+                                              gutterBottom
+                                              style={{ color: "white" }}
+                                            >
+                                              {`Student ID: ${obj.student_id}`}
+                                            </Typography>
+                                            <Typography
+                                              gutterBottom
+                                              style={{ color: "white" }}
+                                            >
+                                              {`Result: ${obj2.result}`}
+                                            </Typography>
+                                          </CardContent>
+                                        </CardActionArea>
+                                      </Card>
+                                    </Grid>
+                                    <Grid item>
+                                      <ColorButton
+                                        variant="contained"
+                                        color="primary"
+                                        
+                                      >
+                                        Re-grade
+                                      </ColorButton>
+                                    </Grid>
+                                    <Grid item>
+                                      <ColorButton
+                                        variant="contained"
+                                        color="primary"
+                                        
+                                      >
+                                        Export
+                                      </ColorButton>
+                                    </Grid>
+                                    <Grid item>
+                                      <ColorButton
+                                        variant="contained"
+                                        color="primary"
+                                        
+                                      >
+                                        Remove
+                                      </ColorButton>
+                                    </Grid>
+                                  </Grid>
+                                </Grid>
                               </Grid>
                             </ListItem>
                           ))
@@ -307,7 +394,7 @@ const ReviewIndex = (props) => {
                     <List component="div" disablePadding>
                       <ListItem button className={classes.nested}>
                         <ListItemIcon>
-                          <AssignmentLateIcon />
+                          <AssignmentLateIcon style={{ fill: "grey" }} />
                         </ListItemIcon>
                         <ListItemText primary="Not graded yet" />
                       </ListItem>
