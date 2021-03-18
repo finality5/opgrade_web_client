@@ -110,10 +110,23 @@ export default function TransitionsModal() {
       });
     }
     setFile(fileArray);
-    
   };
   //if (Err.error) console.log(">>>>", Err.error);
-  console.log(file);
+  //console.log(file);
+  const testSend = () => {
+    const url = `http://${host}:5000/scan_image`;
+    let req = new FormData();
+    req.append("image", file[0].file);
+    // let data = [];
+    // file.forEach((obj) => data.push({ image: obj.base64, name: obj.name }));
+    // console.log(data);
+    //console.log('#',req)
+   
+    axios
+      .post(url, req)
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err.message));
+  };
 
   return (
     <div>
@@ -196,10 +209,18 @@ export default function TransitionsModal() {
             <div>
               {file
                 ? file.map((obj) => (
-                    <img key={obj.preview} src={obj.preview} alt="images" width={50} />
+                    <img
+                      key={obj.preview}
+                      src={obj.preview}
+                      alt="images"
+                      width={50}
+                    />
                   ))
                 : null}
             </div>
+            <Button variant="contained" color="primary" onClick={testSend}>
+              send
+            </Button>
             {/* {items ? (
               <div className={classes.listContainer}>
                 {items.map((data) => {
