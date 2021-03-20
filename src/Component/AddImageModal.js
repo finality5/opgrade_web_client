@@ -1,5 +1,5 @@
-import React, { useState, useContext } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useState, useContext,useEffect } from "react";
+import { makeStyles,withStyles } from "@material-ui/core/styles";
 
 import AddIcon from "@material-ui/icons/Add";
 
@@ -60,6 +60,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const HtmlTooltip = withStyles((theme) => ({
+  tooltip: {
+    backgroundColor: theme.palette.common.white,
+    color: "rgba(0, 0, 0, 0.87)",
+    minWidth: 315,
+
+    boxShadow: theme.shadows[1],
+  },
+}))(Tooltip);
+
+const answerParse = (arr) => {
+  let tmp = {}
+  for (let i = 0; i < arr.length; i++) {
+    tmp[i] = arr[i]
+  }
+  return tmp
+}
+
 export default function TransitionsModal({ isTicker, setTicker }) {
   const classes = useStyles();
   const { user, host, ticker, current, currentQuiz } = useContext(AppContext);
@@ -72,6 +90,14 @@ export default function TransitionsModal({ isTicker, setTicker }) {
   const [sheet, setSheet] = useState("");
   const [file, setFile] = useState([]);
   const url = `http://${host}:5000/scan_image`;
+
+  useEffect(() => {
+    if (currentQuiz) {
+      setSheet(currentQuiz.quizDefault)
+    }
+  }, [openModal])
+
+
   const handleDelete = (chipToDelete) => () => {
     //console.log(chipToDelete);
     setFile((chips) => chips.filter((chip) => chip.preview !== chipToDelete));
@@ -88,7 +114,7 @@ export default function TransitionsModal({ isTicker, setTicker }) {
   const handleClose = () => {
     setOpen(false);
     setFile([]);
-    setSheet()
+    
   };
 
   const modalClose = (event, reason) => {
@@ -99,13 +125,19 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     setOpenModal(false);
   };
 
-  console.log(currentQuiz);
+
+  //console.log(currentQuiz);
   const addStudent = async (event) => {
     setStart(true);
     event.preventDefault();
-
+    // console.log('uid', user.uid)
+    // console.log('class_key',currentQuiz.classKey)
+    // console.log('quiz_key',currentQuiz.quizKey)
     if (file.length === 0) {
       return alert("File is required, make sure that you have uploaded file.");
+    }
+    if (currentQuiz.quizAnswer===""||currentQuiz.quizDefault==="") {
+      return alert("Please select answer and set answer default");
     }
     for (let i = 0; i < file.length; i++) {
       setUpload(true);
@@ -142,6 +174,10 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     setFetch(file[i].preview);
     let req = new FormData();
     req.append("image", file[i].file);
+    req.append("uid", user.uid);
+    req.append("class_key", currentQuiz.classKey);
+    req.append("quiz_key", currentQuiz.quizKey);
+    req.append('answer',JSON.stringify(answerParse(currentQuiz.quizAnswer[[sheet]].quiz_answer)))
     try {
       const data = await axios.post(url, req);
       return data.data;
@@ -218,7 +254,7 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                       </Button>
                     </Tooltip>
                   </label>
-                ) : (
+                ) : currentQuiz.quizAnswer!==""&&currentQuiz.quizDefault!==""?(
                   <FormControl className={classes.formControl}>
                     <TextField
                       required
@@ -242,11 +278,24 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                               spacing={3}
                             >
                               <Grid item>
+                              <HtmlTooltip
+                                    placement="right"
+                                    title={
+                                      <React.Fragment>
+                                        <img
+                                          width={300}
+                                          src={value.answer_url}
+                                          alt="answerr"
+                                        />
+                                      </React.Fragment>
+                                    }
+                                > 
                                 <img
                                   src={value.answer_url}
                                   width={50}
-                                  alt="Logo"
-                                />
+                                  alt="answer"
+                                  />
+                                  </HtmlTooltip>
                               </Grid>
                               <Grid>
                                 <Typography>{value.answer_name}</Typography>
@@ -257,7 +306,7 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                       )}
                     </TextField>
                   </FormControl>
-                )}
+                ):<Alert severity="error">Please select answer in Opgrade Mobile first! </Alert>}
               </Grid>
             </Grid>
             <div className={classes.imageBox}>
