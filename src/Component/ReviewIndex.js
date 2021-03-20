@@ -164,6 +164,7 @@ const ReviewIndex = (props) => {
     studentKey: "",
     scoreKey: "",
   });
+  
 
   useEffect(() => {
     if (currentQuiz) {
@@ -174,10 +175,11 @@ const ReviewIndex = (props) => {
           setData(res.data.score_data);
         })
         .catch((err) => console.log(err.message));
+     
     }
   }, [user, host, currentQuiz, isTicker]);
   //console.log(grade, ungrade, duplicate);
-
+  //console.log(data)
   useEffect(() => {
     if (data) {
       setOpen([...data.map((obj) => ({ key: obj.student_key, open: false }))]);
@@ -264,7 +266,7 @@ const ReviewIndex = (props) => {
                 </ThemeProvider>
               </Grid>
               <Grid item>
-                <AddImageModal />
+                <AddImageModal isTicker={isTicker} setTicker={ setTicker} />
               </Grid>
             </Grid>
           ) : null}

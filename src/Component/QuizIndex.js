@@ -80,6 +80,7 @@ const QuizIndex = (props) => {
       const url = `http://${host}:5000/getquiz?uid=${user.uid}&class_key=${current.class_key}`;
       Axios.get(url).then((res) => {
         setQuiz(res.data.quiz_data);
+        //console.log(res.data)
       });
     }
   }, [current, user, host]);
@@ -126,6 +127,8 @@ const QuizIndex = (props) => {
                       classKey: current.class_key,
                       quizKey: obj.quiz_key,
                       quizName: obj.quiz_name,
+                      quizAnswer: obj.answer,
+                      quizDefault:obj.default
                     });
                   }}
                 >
