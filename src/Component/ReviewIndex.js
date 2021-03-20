@@ -368,7 +368,13 @@ const ReviewIndex = (props) => {
                                               gutterBottom
                                               style={{ color: "white" }}
                                             >
-                                              {`Result: ${obj2.result}`}
+                                              {`Result: ${obj2.result} / ${obj2.total}`}
+                                          </Typography>
+                                          <Typography
+                                              gutterBottom
+                                              style={{ color: "white" }}
+                                            >
+                                              {`Key: ${obj2.answer_name}`}
                                             </Typography>
                                           </CardContent>
                                         </CardActionArea>
