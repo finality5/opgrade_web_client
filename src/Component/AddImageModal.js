@@ -24,7 +24,14 @@ import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import { Typography } from "@material-ui/core";
+import DeleteIcon from "@material-ui/icons/Delete";
+import IconButton from "@material-ui/core/IconButton";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
 
+import FormControl from "@material-ui/core/FormControl";
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
 }
@@ -44,32 +51,34 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     backgroundColor: theme.palette.primary.main,
   },
-  chip: {
-    margin: theme.spacing(0.5),
+  imageBox: {
+    padding: 20,
   },
-  listContainer: {
-    display: "flex",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    listStyle: "none",
-    padding: theme.spacing(0.5),
-    margin: 0,
+  formControl: {
+    width: 500,
+    minWidth: 120,
   },
 }));
 
-export default function TransitionsModal() {
+export default function TransitionsModal({ isTicker, setTicker }) {
   const classes = useStyles();
-  const { user, host, ticker, setTicker, current } = useContext(AppContext);
+  const { user, host, ticker, current, currentQuiz } = useContext(AppContext);
   const [open, setOpen] = useState(false);
 
-  const [studentId, setId] = useState("");
-  const [Err, setErr] = useState({ error: "" });
+  const [upload, setUpload] = useState(false);
+  const [isFetch, setFetch] = useState();
+  const [startFetch, setStart] = useState(false);
   const [openModal, setOpenModal] = useState(false);
-
-  const [items, setItems] = useState([]);
+  const [sheet, setSheet] = useState("");
   const [file, setFile] = useState([]);
+  const url = `http://${host}:5000/scan_image`;
   const handleDelete = (chipToDelete) => () => {
-    setItems((chips) => chips.filter((chip) => chip.id !== chipToDelete.id));
+    //console.log(chipToDelete);
+    setFile((chips) => chips.filter((chip) => chip.preview !== chipToDelete));
+  };
+
+  const handleChange = (event) => {
+    setSheet(event.target.value);
   };
 
   const handleOpen = () => {
@@ -78,8 +87,8 @@ export default function TransitionsModal() {
 
   const handleClose = () => {
     setOpen(false);
-    setItems([]);
-    setId("");
+    setFile([]);
+    setSheet()
   };
 
   const modalClose = (event, reason) => {
@@ -90,12 +99,27 @@ export default function TransitionsModal() {
     setOpenModal(false);
   };
 
-  const addStudent = (event) => {
+  console.log(currentQuiz);
+  const addStudent = async (event) => {
+    setStart(true);
     event.preventDefault();
 
-    if (items.length === 0) {
+    if (file.length === 0) {
       return alert("File is required, make sure that you have uploaded file.");
     }
+    for (let i = 0; i < file.length; i++) {
+      setUpload(true);
+      const post = await fetchPosts(i);
+      console.log(post);
+      setUpload(false);
+      setFetch();
+    }
+    setFile([]);
+    setStart(false);
+    setOpen(false);
+    setOpenModal(true);
+    setSheet()
+    setTicker(!isTicker);
   };
 
   const uploadMultipleFiles = (e) => {
@@ -113,19 +137,17 @@ export default function TransitionsModal() {
   };
   //if (Err.error) console.log(">>>>", Err.error);
   //console.log(file);
-  const testSend = () => {
-    const url = `http://${host}:5000/scan_image`;
+
+  const fetchPosts = async (i) => {
+    setFetch(file[i].preview);
     let req = new FormData();
-    req.append("image", file[0].file);
-    // let data = [];
-    // file.forEach((obj) => data.push({ image: obj.base64, name: obj.name }));
-    // console.log(data);
-    //console.log('#',req)
-   
-    axios
-      .post(url, req)
-      .then((res) => console.log(res.data))
-      .catch((err) => console.log(err.message));
+    req.append("image", file[i].file);
+    try {
+      const data = await axios.post(url, req);
+      return data.data;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -158,7 +180,7 @@ export default function TransitionsModal() {
         <form noValidate onSubmit={addStudent}>
           <DialogContent
             style={{
-              width: 454,
+              width: 570,
               minHeight: 145,
               paddingTop: 0,
               marginTop: 0,
@@ -183,67 +205,104 @@ export default function TransitionsModal() {
                   }}
                   multiple
                 />
-                <label htmlFor="contained-button-file">
-                  <Tooltip
-                    title="Make sure that your file respectively contains 3 rows of student's id,
-                    firstname and lastname with header (id,firstname,lastname)"
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      component="span"
-                      endIcon={
-                        items.length === 0 ? (
-                          <CloudUploadIcon />
-                        ) : (
-                          <RefreshIcon />
-                        )
+                {file.length === 0 ? (
+                  <label htmlFor="contained-button-file">
+                    <Tooltip title="Choose image file">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        component="span"
+                        endIcon={<CloudUploadIcon />}
+                      >
+                        Upload Images
+                      </Button>
+                    </Tooltip>
+                  </label>
+                ) : (
+                  <FormControl className={classes.formControl}>
+                    <TextField
+                      required
+                      id="standard-select-currency"
+                      select
+                      label="Answer Sheet"
+                      value={sheet}
+                      onChange={handleChange}
+                      helperText={
+                        sheet === "" ? "Please select answer sheet" : null
                       }
                     >
-                      Upload Images
-                    </Button>
-                  </Tooltip>
-                </label>
+                      {Object.entries(currentQuiz.quizAnswer).map(
+                        ([key, value]) => (
+                          <MenuItem value={key} key={key}>
+                            <Grid
+                              container
+                              direction="row"
+                              justify="flex-start"
+                              alignItems="center"
+                              spacing={3}
+                            >
+                              <Grid item>
+                                <img
+                                  src={value.answer_url}
+                                  width={50}
+                                  alt="Logo"
+                                />
+                              </Grid>
+                              <Grid>
+                                <Typography>{value.answer_name}</Typography>
+                              </Grid>
+                            </Grid>
+                          </MenuItem>
+                        )
+                      )}
+                    </TextField>
+                  </FormControl>
+                )}
               </Grid>
             </Grid>
-            <div>
-              {file
-                ? file.map((obj) => (
-                    <img
-                      key={obj.preview}
-                      src={obj.preview}
-                      alt="images"
-                      width={50}
-                    />
-                  ))
-                : null}
+            <div className={classes.imageBox}>
+              <Grid
+                container
+                direction="row"
+                justify="flex-start"
+                alignItems="flex-start"
+                spacing={2}
+              >
+                {file
+                  ? file.map((obj) => (
+                      <Grid item key={obj.preview}>
+                        <Grid
+                          container
+                          direction="column"
+                          justify="center"
+                          alignItems="center"
+                        >
+                          <Grid item>
+                            <img src={obj.preview} alt="images" width={150} />
+                            {upload && isFetch === obj.preview ? (
+                              <LinearProgress />
+                            ) : null}
+                          </Grid>
+                          <Grid item>
+                            <Button size="small" color="primary">
+                              {obj.name}
+                            </Button>
+                            {!startFetch ? (
+                              <IconButton
+                                color="primary"
+                                aria-label="delete"
+                                onClick={handleDelete(obj.preview)}
+                              >
+                                <DeleteIcon style={{ width: 20 }} />
+                              </IconButton>
+                            ) : null}
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    ))
+                  : null}
+              </Grid>
             </div>
-            <Button variant="contained" color="primary" onClick={testSend}>
-              send
-            </Button>
-            {/* {items ? (
-              <div className={classes.listContainer}>
-                {items.map((data) => {
-                  return (
-                    <li key={data.id}>
-                      <Tooltip
-                        title={`${data.id} ${data.firstname} ${data.lastname}`}
-                      >
-                        <Chip
-                          variant="outlined"
-                          avatar={<Avatar>{data.firstname[0]}</Avatar>}
-                          label={`${data.id}`}
-                          color="primary"
-                          clickable
-                          onDelete={handleDelete(data)}
-                          className={classes.chip}
-                        />
-                      </Tooltip>
-                    </li>
-                  );
-                })}
-              </div>
-            ) : null} */}
           </DialogContent>
 
           <DialogActions>
