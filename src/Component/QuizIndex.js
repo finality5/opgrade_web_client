@@ -133,7 +133,8 @@ const QuizIndex = (props) => {
                       quizKey: obj.quiz_key,
                       quizName: obj.quiz_name,
                       quizAnswer: obj.answer,
-                      quizDefault:obj.default
+                      quizDefault: obj.default,
+                      quizType:obj.quiz_type
                     });
                   }}
                 >

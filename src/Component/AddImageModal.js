@@ -125,8 +125,9 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     setOpenModal(false);
   };
 
+  
 
-  //console.log(currentQuiz);
+  //console.log(currentQuiz.quizType);
   const addStudent = async (event) => {
     setStart(true);
     event.preventDefault();
@@ -177,6 +178,7 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     req.append("uid", user.uid);
     req.append("class_key", currentQuiz.classKey);
     req.append("quiz_key", currentQuiz.quizKey);
+    req.append("quiz_type", currentQuiz.quizType);
     req.append("answer_key", sheet);
     req.append("answer_name", currentQuiz.quizAnswer[[sheet]].answer_name);
     req.append('answer',JSON.stringify(answerParse(currentQuiz.quizAnswer[[sheet]].quiz_answer)))
