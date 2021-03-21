@@ -6,7 +6,11 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
-import { withStyles } from "@material-ui/core/styles";
+import {
+  withStyles,
+  createMuiTheme,
+  ThemeProvider,
+} from "@material-ui/core/styles";
 import { AppContext } from "./../context/context";
 import Axios from "axios";
 import ListSubheader from "@material-ui/core/ListSubheader";
@@ -15,7 +19,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Collapse from "@material-ui/core/Collapse";
-
+import { green, purple } from "@material-ui/core/colors";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import StarBorder from "@material-ui/icons/StarBorder";
@@ -25,16 +29,23 @@ import { LegendOrdinal } from "@vx/legend";
 
 import { color as colors } from "@data-ui/theme";
 import { RadialChart, ArcSeries, ArcLabel } from "@data-ui/radial-chart";
-
+import {
+  Histogram,
+  DensitySeries,
+  BarSeries,
+  withParentSize,
+  XAxis,
+  YAxis,
+} from "@data-ui/histogram";
+import LinearProgress from '@material-ui/core/LinearProgress';
 const colorScale = scaleOrdinal({
   range: ["#00c7c7ff", "#4a86e8ff", "#674ea7ff", "#0b5394ff"],
 });
-const data = [
-  { label: "a", value: 20 },
-  { label: "b", value: 40 },
-  { label: "c", value: 30 },
-  { label: "d", value: 10 },
-];
+const ResponsiveHistogram = withParentSize(
+  ({ parentWidth, parentHeight, ...rest }) => (
+    <Histogram width={parentWidth} height={parentHeight} {...rest} />
+  )
+);
 
 const styles = (theme) => ({
   paper: {
@@ -74,35 +85,34 @@ const styles = (theme) => ({
   },
 });
 
+const theme = createMuiTheme({
+  palette: {
+    primary: { main: "#2c393fff" },
+  },
+});
+
 const StatIndex = (props) => {
   const { classes } = props;
   const { setUser, host, current, user, mode } = useContext(AppContext);
-  const [student, setStudent] = useState([]);
+  const [stat, setStat] = useState();
   const [open, setOpen] = React.useState(true);
 
-  console.log(colorScale);
+  //console.log(current);
   const handleClick = () => {
     setOpen(!open);
   };
   useEffect(() => {
     if (current) {
-      const url = `http://${host}:5000/getstudent?uid=${user.uid}&class_key=${current.class_key}`;
+      const url = `http://${host}:5000/getstat?uid=${user.uid}&class_key=${current.class_key}`;
       Axios.get(url).then((res) => {
-        if (res.data.student_data) {
-          let data = [];
-          res.data.student_data.forEach((obj) => {
-            //console.log(obj.student_name.split(" "));
-            data.push({
-              id: obj.student_id,
-              lastName: obj.student_name.split(" ")[1],
-              firstName: obj.student_name.split(" ")[0],
-            });
-          });
-          setStudent(data);
+        if (res.data.stat_data) {
+          setStat(res.data.stat_data);
         }
       });
     }
   }, [current, user]);
+
+  console.log(stat);
 
   return (
     <Paper className={classes.paper}>
@@ -122,94 +132,408 @@ const StatIndex = (props) => {
           </Grid>
         </Toolbar>
       </AppBar>
-      <div className={classes.contentWrapper}>
-        <List
-          component="nav"
-          aria-labelledby="nested-list-subheader"
-          subheader={
-            <ListSubheader component="div" id="nested-list-subheader">
-              Nested List Items
-            </ListSubheader>
-          }
-          className={classes.root}
-        >
-          <ListItem button onClick={handleClick}>
-            <Grid
-              container
-              direction="row"
-              justify="center"
-              alignItems="center"
-              spacing={2}
-            >
-              <Grid item>
-                <Button variant="contained" style={{ width: 10 }}>
-                  1
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="contained" className={classes.button}>
-                  Correct
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="contained" className={classes.button}>
-                  %
-                </Button>
-              </Grid>
-            </Grid>
-            {open ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={open} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
-                <Grid
-                  container
-                  direction="column"
-                  justify="center"
-                  alignItems="center"
-                >
-                  <Grid item>
-                    <RadialChart
-                      ariaLabel="This is a radial-chart chart of..."
-                      width={500}
-                      height={500}
-                      margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
-                      renderTooltip={({ event, datum, data, fraction }) => (
-                        <div>
-                          <strong>{datum.label}</strong>{ ' '}
-                          {datum.value} ({(fraction * 100).toFixed(2)}%)
-                        </div>
-                      )}
+      {stat
+        ? stat.map((obj) => (
+            <div className={classes.contentWrapper} key={obj.quiz_key}>
+              <Grid
+                container
+                direction="row"
+                justify="center"
+                alignItems="center"
+                spacing={3}
+              >
+                <Grid item>
+                  <ThemeProvider theme={theme}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      style={{ width: 220 }}
                     >
-                      <ArcSeries
-                        data={data}
-                        pieValue={(d) => d.value}
-                        fill={(arc) => colorScale(arc.data.label)}
-                        stroke="#fff"
-                        strokeWidth={1}
-                        label={(arc) => `${arc.data.value.toFixed(1)}%`}
-                        labelComponent={<ArcLabel />}
-                        innerRadius={(radius) => 0.35 * radius}
-                        outerRadius={(radius) => 0.6 * radius}
-                        labelRadius={(radius) => 0.75 * radius}
-                      />
-                    </RadialChart>
-                  </Grid>
-                  <Grid item>
-                    <LegendOrdinal
-                      direction="row"
-                      scale={colorScale}
-                      shape="rect"
-                      fill={({ datum }) => colorScale(datum)}
-                      labelFormat={(label) => label}
-                    />
-                  </Grid>
+                      {obj.quiz_name}
+                    </Button>
+                  </ThemeProvider>
                 </Grid>
-              </ListItem>
-            </List>
-          </Collapse>
-        </List>
-      </div>
+              </Grid>
+              <List
+                component="nav"
+                aria-labelledby="nested-list-subheader"
+                subheader={
+                  <ListSubheader component="div" id="nested-list-subheader">
+                    Statistic
+                  </ListSubheader>
+                }
+                className={classes.root}
+              >
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <ThemeProvider theme={theme}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                        >
+                          Average
+                        </Button>
+                      </ThemeProvider>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="contained" className={classes.button}>
+                        {obj.stat.mean.toFixed(2)}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <ThemeProvider theme={theme}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                        >
+                          S.D.
+                        </Button>
+                      </ThemeProvider>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="contained" className={classes.button}>
+                        {obj.stat.std.toFixed(2)}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <ThemeProvider theme={theme}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                        >
+                          Median
+                        </Button>
+                      </ThemeProvider>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="contained" className={classes.button}>
+                        {obj.stat.median.toFixed(2)}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <ThemeProvider theme={theme}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                        >
+                          Mode
+                        </Button>
+                      </ThemeProvider>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="contained" className={classes.button}>
+                        {obj.stat.mode}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <ThemeProvider theme={theme}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                        >
+                          Max
+                        </Button>
+                      </ThemeProvider>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="contained" className={classes.button}>
+                        {obj.stat.max}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <ThemeProvider theme={theme}>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                        >
+                          Min
+                        </Button>
+                      </ThemeProvider>
+                    </Grid>
+                    <Grid item>
+                      <Button variant="contained" className={classes.button}>
+                        {obj.stat.min}
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+                <ListItem button>
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    spacing={2}
+                  >
+                    <Grid item>
+                      <Histogram
+                        width={500}
+                        height={300}
+                        ariaLabel="My histogram of quiz score"
+                        orientation="vertical"
+                        cumulative={false}
+                        normalized={false}
+                        binCount={25}
+                        valueAccessor={(datum) => datum}
+                        binType="numeric"
+                        renderTooltip={({ event, datum, data, color }) => (
+                          <div>
+                            <strong style={{ color }}>
+                              {datum.bin0} to {datum.bin1}
+                            </strong>
+                            <div>
+                              <strong>count </strong>
+                              {datum.count}
+                            </div>
+                            <div>
+                              <strong>cumulative </strong>
+                              {datum.cumulative}
+                            </div>
+                            
+                          </div>
+                        )}
+                      >
+                        <BarSeries animated rawData={obj.score_data} />
+                        <XAxis />
+                        <YAxis />
+                      </Histogram>
+                    </Grid>
+                  </Grid>
+                </ListItem>
+              </List>
+              <List
+                component="nav"
+                aria-labelledby="nested-list-subheader"
+                subheader={
+                  <ListSubheader component="div" id="nested-list-subheader">
+                    Items Analyze
+                  </ListSubheader>
+                }
+                className={classes.root}
+              >
+                <React.Fragment>
+                  <ListItem button>
+                    <Grid
+                      container
+                      direction="row"
+                      justify="center"
+                      alignItems="center"
+                      spacing={2}
+                    >
+                      <Grid item>
+                        <ThemeProvider theme={theme}>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            style={{ width: 10 }}
+                          >
+                            {`*`}
+                          </Button>
+                        </ThemeProvider>
+                      </Grid>
+
+                      <Grid item>
+                        <ThemeProvider theme={theme}>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                          >
+                            Correct
+                          </Button>
+                        </ThemeProvider>
+                      </Grid>
+                      <Grid item>
+                        <ThemeProvider theme={theme}>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                          >
+                            %
+                          </Button>
+                        </ThemeProvider>
+                      </Grid>
+                    </Grid>
+                  </ListItem>
+                </React.Fragment>
+                {obj.score
+                  ? obj.score.map((obj2) => {
+                      let data = obj2.count;
+                      return (
+                        <React.Fragment key={obj2.question}>
+                          <ListItem button onClick={handleClick}>
+                            <Grid
+                              container
+                              direction="row"
+                              justify="center"
+                              alignItems="center"
+                              spacing={2}
+                            >
+                              <Grid item>
+                                <Button
+                                  variant="contained"
+                                  style={{ width: 10 }}
+                                >
+                                  {obj2.question}
+                                </Button>
+                              </Grid>
+                              <Grid item>
+                                <Button
+                                  variant="contained"
+                                  className={classes.button}
+                                >
+                                  {`${obj2.correct} / ${obj.total}`}
+                                </Button>
+                              </Grid>
+                              <Grid item>
+                                <Button
+                                  variant="contained"
+                                  className={classes.button}
+                                >
+                                  {`${(
+                                    (obj2.correct / obj.total) *
+                                    100
+                                  ).toFixed(2)}%`}
+                                </Button>
+                              </Grid>
+                            </Grid>
+                          </ListItem>
+                          <Collapse in={open} timeout="auto" unmountOnExit>
+                            <List component="div" disablePadding>
+                              <ListItem button className={classes.nested}>
+                                <Grid
+                                  container
+                                  direction="column"
+                                  justify="center"
+                                  alignItems="center"
+                                >
+                                  <Grid item>
+                                    <RadialChart
+                                      ariaLabel="This is a radial-chart chart of..."
+                                      width={500}
+                                      height={500}
+                                      margin={{
+                                        top: 10,
+                                        right: 10,
+                                        bottom: 10,
+                                        left: 10,
+                                      }}
+                                      renderTooltip={({
+                                        event,
+                                        datum,
+                                        data,
+                                        fraction,
+                                      }) => (
+                                        <div>
+                                          <strong>{datum.label}</strong>{" "}
+                                          {datum.value} (
+                                          {(fraction * 100).toFixed(2)}%)
+                                        </div>
+                                      )}
+                                    >
+                                      <ArcSeries
+                                        data={data}
+                                        pieValue={(d) => d.value}
+                                        fill={(arc) =>
+                                          colorScale(arc.data.label)
+                                        }
+                                        stroke="#fff"
+                                        strokeWidth={1}
+                                        label={(arc) =>
+                                          `${arc.data.value.toFixed(1)}%`
+                                        }
+                                        labelComponent={<ArcLabel />}
+                                        innerRadius={(radius) => 0.35 * radius}
+                                        outerRadius={(radius) => 0.6 * radius}
+                                        labelRadius={(radius) => 0.75 * radius}
+                                      />
+                                    </RadialChart>
+                                  </Grid>
+                                  <Grid item>
+                                    <LegendOrdinal
+                                      direction="row"
+                                      scale={colorScale}
+                                      shape="rect"
+                                      fill={({ datum }) => colorScale(datum)}
+                                      labelFormat={(label) => label}
+                                    />
+                                  </Grid>
+                                </Grid>
+                              </ListItem>
+                            </List>
+                          </Collapse>
+                        </React.Fragment>
+                      );
+                    })
+                  : null}
+              </List>
+            </div>
+          ))
+        : <LinearProgress />}
     </Paper>
   );
 };

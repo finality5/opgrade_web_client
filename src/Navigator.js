@@ -77,16 +77,7 @@ function Navigator(props) {
           id: obj.class_key,
           class_name: obj.class_name,
           children: [
-            {
-              id: "Class",
-              icon: <SchoolIcon />,
-              mode: "class",
-              active:
-                trigger.class_id === obj.class_key &&
-                trigger.class_mode === "class"
-                  ? true
-                  : false,
-            },
+            
             {
               id: "Quiz",
               icon: <ClassIcon />,

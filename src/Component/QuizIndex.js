@@ -17,6 +17,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { AppContext } from "./../context/context";
 import AddQuizModal from "./AddQuizModal";
 import Axios from "axios";
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const boxColor = [
   "#4294d0",
@@ -75,12 +76,16 @@ const QuizIndex = (props) => {
     AppContext
   );
   const [quiz, setQuiz] = useState();
+  const [isFetch, setFetch] = useState(false);
   useEffect(() => {
+    setFetch(true)
     if (current) {
       const url = `http://${host}:5000/getquiz?uid=${user.uid}&class_key=${current.class_key}`;
       Axios.get(url).then((res) => {
         setQuiz(res.data.quiz_data);
         //console.log(res.data)
+    setFetch(false)
+
       });
     }
   }, [current, user, host]);
@@ -106,7 +111,7 @@ const QuizIndex = (props) => {
           </Grid>
         </Toolbar>
       </AppBar>
-      <div className={classes.contentWrapper}>
+      {!isFetch?(<div className={classes.contentWrapper}>
         <Grid
           container
           direction="row"
@@ -196,7 +201,7 @@ const QuizIndex = (props) => {
               ))
             : null}
         </Grid>
-      </div>
+      </div>):<LinearProgress />}
     </Paper>
   );
 };

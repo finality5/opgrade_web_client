@@ -5,7 +5,7 @@ import { withStyles } from "@material-ui/core/styles";
 
 import { AppContext } from "./context/context";
 import StudentIndex from "./Component/StudentIndex";
-import ClassIndex from "./Component/ClassIndex";
+
 import QuizIndex from "./Component/QuizIndex";
 import StatIndex from "./Component/StatIndex";
 import ReviewIndex from "./Component/ReviewIndex";
@@ -37,45 +37,15 @@ const styles = (theme) => ({
   },
 });
 
-const ModeDisplay = (mode) => {
-  switch (mode) {
-    case "class":
-      return "Class";
-    case "quiz":
-      return "Quiz";
-    case "student":
-      return "Student";
-    case "stat":
-      return "Statistic";
-    default:
-      return;
-  }
-};
 
-const ContentDisplay = (mode) => {
-  switch (mode) {
-    case "class":
-      return "Class";
-    case "quiz":
-      return "Quiz";
-    case "student":
-      return "Student";
-    case "stat":
-      return "Statistic";
-    default:
-      return;
-  }
-};
 
 function Content(props) {
   const { classes } = props;
-  const { setUser, setHost, current, user, mode } = useContext(AppContext);
+  const { mode } = useContext(AppContext);
   //console.log(mode);
   return mode
     ? (() => {
         switch (mode) {
-          case "class":
-            return <ClassIndex />;
           case "quiz":
             return <QuizIndex />;
           case "student":

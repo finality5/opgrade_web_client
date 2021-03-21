@@ -11,7 +11,7 @@ import { DataGrid } from "@material-ui/data-grid";
 import { withStyles } from "@material-ui/core/styles";
 import { AppContext } from "./../context/context";
 import Axios from "axios";
-
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 const styles = (theme) => ({
   paper: {
@@ -59,17 +59,17 @@ const columns = [
     description: "This column displays student's lastname.",
     width: 180,
   },
-
-  
 ];
 
 const StudentIndex = (props) => {
   const { classes } = props;
   const { setUser, host, current, user, mode } = useContext(AppContext);
   const [student, setStudent] = useState([]);
-  
+  const [isFetch, setFetch] = useState(false);
+
   useEffect(() => {
     if (current) {
+      setFetch(true);
       const url = `http://${host}:5000/getstudent?uid=${user.uid}&class_key=${current.class_key}`;
       Axios.get(url).then((res) => {
         if (res.data.student_data) {
@@ -84,11 +84,10 @@ const StudentIndex = (props) => {
           });
           setStudent(data);
         }
+        setFetch(false);
       });
     }
   }, [current, user]);
-  
-
 
   return (
     <Paper className={classes.paper}>
@@ -111,20 +110,28 @@ const StudentIndex = (props) => {
           </Grid>
         </Toolbar>
       </AppBar>
-      <div className={classes.contentWrapper}>
-        <Grid container direction="column" justify="center" alignItems="center">
-          <Grid item xs={8} style={{ height: 400, width: "100%" }}>
-            <DataGrid
-              autoHeight={true}
-              rowHeight={48}
-              rows={student}
-              columns={columns}
-              pageSize={8}
-            />
+      {!isFetch ? (
+        <div className={classes.contentWrapper}>
+          <Grid
+            container
+            direction="column"
+            justify="center"
+            alignItems="center"
+          >
+            <Grid item xs={8} style={{ height: 400, width: "100%" }}>
+              <DataGrid
+                autoHeight={true}
+                rowHeight={48}
+                rows={student}
+                columns={columns}
+                pageSize={8}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </div>
-      
+        </div>
+      ) : (
+        <LinearProgress />
+      )}
     </Paper>
   );
 };
