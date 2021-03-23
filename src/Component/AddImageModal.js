@@ -1,5 +1,5 @@
-import React, { useState, useContext,useEffect } from "react";
-import { makeStyles,withStyles } from "@material-ui/core/styles";
+import React, { useState, useContext, useEffect } from "react";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 import AddIcon from "@material-ui/icons/Add";
 
@@ -30,6 +30,9 @@ import IconButton from "@material-ui/core/IconButton";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import TextField from "@material-ui/core/TextField";
 import MenuItem from "@material-ui/core/MenuItem";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListSubheader from "@material-ui/core/ListSubheader";
 
 import FormControl from "@material-ui/core/FormControl";
 function Alert(props) {
@@ -71,17 +74,16 @@ const HtmlTooltip = withStyles((theme) => ({
 }))(Tooltip);
 
 const answerParse = (arr) => {
-  let tmp = {}
+  let tmp = {};
   for (let i = 0; i < arr.length; i++) {
-    tmp[i] = arr[i]
+    tmp[i] = arr[i];
   }
-  return tmp
-}
+  return tmp;
+};
 
 export default function TransitionsModal({ isTicker, setTicker }) {
   const classes = useStyles();
-  const { user, host, ticker, current, currentQuiz } = useContext(AppContext);
-  const [open, setOpen] = useState(false);
+  const { user, host, ticker, current, currentQuiz,open, setOpenBox } = useContext(AppContext);
 
   const [upload, setUpload] = useState(false);
   const [isFetch, setFetch] = useState();
@@ -89,14 +91,14 @@ export default function TransitionsModal({ isTicker, setTicker }) {
   const [openModal, setOpenModal] = useState(false);
   const [sheet, setSheet] = useState("");
   const [file, setFile] = useState([]);
+
   const url = `http://${host}:5000/scan_image`;
 
   useEffect(() => {
     if (currentQuiz) {
-      setSheet(currentQuiz.quizDefault)
+      setSheet(currentQuiz.quizDefault);
     }
-  }, [openModal])
-
+  }, [open]);
 
   const handleDelete = (chipToDelete) => () => {
     //console.log(chipToDelete);
@@ -108,13 +110,12 @@ export default function TransitionsModal({ isTicker, setTicker }) {
   };
 
   const handleOpen = () => {
-    setOpen(true);
+    setOpenBox(true);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setOpenBox(false);
     setFile([]);
-    
   };
 
   const modalClose = (event, reason) => {
@@ -124,8 +125,6 @@ export default function TransitionsModal({ isTicker, setTicker }) {
 
     setOpenModal(false);
   };
-
-  
 
   //console.log(currentQuiz.quizType);
   const addStudent = async (event) => {
@@ -137,7 +136,7 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     if (file.length === 0) {
       return alert("File is required, make sure that you have uploaded file.");
     }
-    if (currentQuiz.quizAnswer===""||currentQuiz.quizDefault==="") {
+    if (currentQuiz.quizAnswer === "" || currentQuiz.quizDefault === "") {
       return alert("Please select answer and set answer default");
     }
     for (let i = 0; i < file.length; i++) {
@@ -149,9 +148,9 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     }
     setFile([]);
     setStart(false);
-    setOpen(false);
+    setOpenBox(false);
     setOpenModal(true);
-    setSheet()
+    setSheet();
     setTicker(!isTicker);
   };
 
@@ -169,19 +168,43 @@ export default function TransitionsModal({ isTicker, setTicker }) {
     setFile(fileArray);
   };
   //if (Err.error) console.log(">>>>", Err.error);
-  //console.log(file);
 
   const fetchPosts = async (i) => {
-    setFetch(file[i].preview);
+    setFetch(i);
     let req = new FormData();
     req.append("image", file[i].file);
     req.append("uid", user.uid);
     req.append("class_key", currentQuiz.classKey);
     req.append("quiz_key", currentQuiz.quizKey);
     req.append("quiz_type", currentQuiz.quizType);
-    req.append("answer_key", sheet);
-    req.append("answer_name", currentQuiz.quizAnswer[[sheet]].answer_name);
-    req.append('answer',JSON.stringify(answerParse(currentQuiz.quizAnswer[[sheet]].quiz_answer)))
+    if (currentQuiz.quizType === "0") {
+      req.append("answer_key", sheet);
+      req.append("answer_name", currentQuiz.quizAnswer[[sheet]].answer_name);
+      req.append(
+        "answer",
+        JSON.stringify(answerParse(currentQuiz.quizAnswer[[sheet]].quiz_answer))
+      );
+    }
+    if (currentQuiz.quizType === "1") {
+      req.append("answer_key", JSON.stringify(sheet));
+      req.append(
+        "answer_name",
+        JSON.stringify([
+          ...currentQuiz.quizDefault.map(
+            (key) => currentQuiz.quizAnswer[[key]].answer_name
+          ),
+        ])
+      );
+      req.append(
+        "answer",
+        JSON.stringify([
+          ...currentQuiz.quizDefault.map((key) =>
+            answerParse(currentQuiz.quizAnswer[[key]].quiz_answer)
+          ),
+        ])
+      );
+    }
+
     try {
       const data = await axios.post(url, req);
       return data.data;
@@ -258,7 +281,9 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                       </Button>
                     </Tooltip>
                   </label>
-                ) : currentQuiz.quizAnswer!==""&&currentQuiz.quizDefault!==""?(
+                ) : currentQuiz.quizAnswer !== "" &&
+                  currentQuiz.quizDefault !== "" &&
+                  currentQuiz.quizType === "0" ? (
                   <FormControl className={classes.formControl}>
                     <TextField
                       required
@@ -282,24 +307,24 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                               spacing={3}
                             >
                               <Grid item>
-                              <HtmlTooltip
-                                    placement="right"
-                                    title={
-                                      <React.Fragment>
-                                        <img
-                                          width={300}
-                                          src={value.answer_url}
-                                          alt="answerr"
-                                        />
-                                      </React.Fragment>
-                                    }
-                                > 
-                                <img
-                                  src={value.answer_url}
-                                  width={50}
-                                  alt="answer"
+                                <HtmlTooltip
+                                  placement="right"
+                                  title={
+                                    <React.Fragment>
+                                      <img
+                                        width={300}
+                                        src={value.answer_url}
+                                        alt="answerr"
+                                      />
+                                    </React.Fragment>
+                                  }
+                                >
+                                  <img
+                                    src={value.answer_url}
+                                    width={50}
+                                    alt="answer"
                                   />
-                                  </HtmlTooltip>
+                                </HtmlTooltip>
                               </Grid>
                               <Grid>
                                 <Typography>{value.answer_name}</Typography>
@@ -310,7 +335,65 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                       )}
                     </TextField>
                   </FormControl>
-                ):<Alert severity="error">Please select answer in Opgrade Mobile first! </Alert>}
+                ) : currentQuiz.quizAnswer !== "" &&
+                  currentQuiz.quizDefault !== "" &&
+                  currentQuiz.quizType === "1" ? (
+                  <List
+                    component="nav"
+                    aria-label="main mailbox folders"
+                    className={classes.formControl}
+                    subheader={
+                      <ListSubheader component="div" id="nested-list-subheader">
+                        Answer Paper
+                      </ListSubheader>
+                    }
+                  >
+                    {Object.entries(currentQuiz.quizAnswer).map(
+                      ([key, value], index) => (
+                        <ListItem button key={key}>
+                          <Grid
+                            container
+                            direction="row"
+                            justify="flex-start"
+                            alignItems="center"
+                            spacing={3}
+                          >
+                            <Grid item>
+                              <HtmlTooltip
+                                placement="right"
+                                title={
+                                  <React.Fragment>
+                                    <img
+                                      width={300}
+                                      src={value.answer_url}
+                                      alt="answerr"
+                                    />
+                                  </React.Fragment>
+                                }
+                              >
+                                <img
+                                  src={value.answer_url}
+                                  width={50}
+                                  alt="answer"
+                                />
+                              </HtmlTooltip>
+                            </Grid>
+                            <Grid>
+                              <Typography
+                                style={{ fontWeight: "bold" }}
+                              >{`Key ID: ${index + 1}`}</Typography>
+                              <Typography>{`Answer name: ${value.answer_name}`}</Typography>
+                            </Grid>
+                          </Grid>
+                        </ListItem>
+                      )
+                    )}
+                  </List>
+                ) : (
+                  <Alert severity="error">
+                    Please select answer in Opgrade Mobile first!{" "}
+                  </Alert>
+                )}
               </Grid>
             </Grid>
             <div className={classes.imageBox}>
@@ -322,7 +405,7 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                 spacing={2}
               >
                 {file
-                  ? file.map((obj) => (
+                  ? file.map((obj, index) => (
                       <Grid item key={obj.preview}>
                         <Grid
                           container
@@ -332,13 +415,19 @@ export default function TransitionsModal({ isTicker, setTicker }) {
                         >
                           <Grid item>
                             <img src={obj.preview} alt="images" width={150} />
-                            {upload && isFetch === obj.preview ? (
+                            {upload && isFetch === index ? (
                               <LinearProgress />
                             ) : null}
                           </Grid>
                           <Grid item>
                             <Button size="small" color="primary">
-                              {obj.name}
+                              <span
+                                style={
+                                  index < isFetch ? { color: "green" } : null
+                                }
+                              >
+                                {obj.name}
+                              </span>
                             </Button>
                             {!startFetch ? (
                               <IconButton

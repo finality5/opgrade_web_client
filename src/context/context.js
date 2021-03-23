@@ -9,6 +9,8 @@ export const AppProvider = ({ children }) => {
   const [mode, setMode] = useState();
   const [ticker, setTicker] = useState(false);
   const [currentQuiz, setCurrentQuiz] = useState();
+  const [isFetch, setFetch] = useState(false);
+  const [open, setOpenBox] = useState(false);
   return (
     <AppContext.Provider
       value={{
@@ -24,6 +26,10 @@ export const AppProvider = ({ children }) => {
         setTicker,
         currentQuiz,
         setCurrentQuiz,
+        isFetch,
+        setFetch,
+        open,
+        setOpenBox,
       }}
     >
       {children}

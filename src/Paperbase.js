@@ -155,9 +155,9 @@ const styles = {
 function Paperbase(props) {
   const { classes } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-  const {  setUser, setHost,ticker } = useContext(AppContext);
+  const {  setUser, setHost,ticker,setFetch } = useContext(AppContext);
   const [error, setError] = useState();
-  const [isFetch, setFetch] = useState(false);
+  //const [isFetch, setFetch] = useState(false);
 
   useEffect(() => {
    

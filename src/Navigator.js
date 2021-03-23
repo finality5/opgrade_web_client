@@ -17,6 +17,7 @@ import EqualizerIcon from "@material-ui/icons/Equalizer";
 import SchoolIcon from "@material-ui/icons/School";
 import { AppContext } from "./context/context";
 import AddClassModal from "./Component/AddClassModal";
+import LinearProgress from '@material-ui/core/LinearProgress';
 const styles = (theme) => ({
   categoryHeader: {
     paddingTop: theme.spacing(2),
@@ -64,7 +65,7 @@ const styles = (theme) => ({
 
 function Navigator(props) {
   const { classes, ...other } = props;
-  const { user, setCurrent, setMode, ticker, setTicker } = useContext(
+  const { user, setCurrent, setMode, ticker, setTicker,isFetch } = useContext(
     AppContext
   );
   const [categories, setCate] = useState([]);
@@ -149,6 +150,7 @@ function Navigator(props) {
             Project Admin
           </ListItemText>
         </ListItem>
+        {isFetch?<LinearProgress />:null}
         {categories.map(({ id, class_name, children }) => (
           <React.Fragment key={id}>
             <ListItem className={classes.categoryHeader}>
