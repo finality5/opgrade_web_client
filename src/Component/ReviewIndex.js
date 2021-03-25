@@ -322,7 +322,7 @@ const ReviewIndex = (props) => {
             aria-labelledby="nested-list-subheader"
             subheader={
               <ListSubheader component="div" id="nested-list-subheader">
-                Graded
+                {grade?`Graded (${grade.length})`:`Graded`}
               </ListSubheader>
             }
             className={classes.root}
@@ -478,7 +478,7 @@ const ReviewIndex = (props) => {
             aria-labelledby="nested-list-subheader"
             subheader={
               <ListSubheader component="div" id="nested-list-subheader">
-                Ungraded
+                 {ungrade?`Ungraded (${ungrade.length})`:`Ungraded`}
               </ListSubheader>
             }
             className={classes.root}
@@ -529,7 +529,7 @@ const ReviewIndex = (props) => {
               aria-labelledby="nested-list-subheader"
               subheader={
                 <ListSubheader component="div" id="nested-list-subheader">
-                  Duplicated
+                  {duplicate?`Duplicated (${duplicate.length})`:`Duplicate`}
                 </ListSubheader>
               }
               className={classes.root}

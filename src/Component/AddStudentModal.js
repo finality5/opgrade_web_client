@@ -34,6 +34,7 @@ import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import RefreshIcon from "@material-ui/icons/Refresh";
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 function Alert(props) {
   return <MuiAlert elevation={6} variant="filled" {...props} />;
@@ -117,6 +118,7 @@ export default function TransitionsModal() {
   const [openModal, setOpenModal] = useState(false);
   const [isToggle, setToggle] = useState(false);
   const [items, setItems] = useState([]);
+  const [isFetch, setFetch] = useState(false);
 
   const handleDelete = (chipToDelete) => () => {
     setItems((chips) => chips.filter((chip) => chip.id !== chipToDelete.id));
@@ -238,6 +240,7 @@ export default function TransitionsModal() {
           "File is required, make sure that you have uploaded file."
         );
       }
+      setFetch(true);
       let tmp = [];
       items.forEach((obj) => {
         tmp.push({
@@ -258,9 +261,13 @@ export default function TransitionsModal() {
           setOpen(false);
           setOpenModal(true);
           setTicker(!ticker);
+          setFetch(false);
           //console.log("#", res);
         })
-        .catch((err) => setErr({ error: err.message }));
+        .catch((err) => {
+          setFetch(false);
+          setErr({ error: err.message });
+        });
     }
   };
 
@@ -298,6 +305,7 @@ export default function TransitionsModal() {
               />
             </Grid>
           </Grid>
+          {isFetch?<LinearProgress style={{marginTop:10}} />:null}
         </DialogTitle>
         <form noValidate onSubmit={addStudent}>
           {!isToggle ? (
